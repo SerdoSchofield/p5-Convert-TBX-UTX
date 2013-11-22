@@ -20,7 +20,6 @@ open my $in, '<', $ARGV[0]
 		or die "cannot open $ARGV[0] for reading\n";
 open OUT, '>', $ARGV[1]
 		or die "Please specify an Output file";
-#~ open OUT2, '>', "out2.tbx";
 
 sub import_utx {
 
@@ -36,7 +35,7 @@ sub import_utx {
 	$description = $1 if /comment|description: ?([^;]+)/i;
 	$id = $1 if /dictionary id:* ?([^;]+)/i;
 	$directionality = $1 if /(bidirectional)/i;
-    $subject = $1 if /subject\w*: ?([^;]+)/i;
+	$subject = $1 if /subject\w*: ?([^;]+)/i;
 
 	# second header line
 	# keep checking until 'src' or 'tgt' are found.  This is in case the second header is a description (which it shouldn't be)
@@ -95,40 +94,10 @@ sub export_tbxnny {
 		$concept = TBX::Min::ConceptEntry->new();
 		while(my ($key, $value) = each %hash){
 			if ($key =~ /src/){
-				if ($key =~ /src$/){
-					$lang_group_src = TBX::Min::LangGroup->new({code => $src});
-					$term_group_src = TBX::Min::TermGroup->new({term => $value});
-				}
-				elsif ($key =~ /pos$/){
-					$term_group_src->part_of_speech($value);
-				}
-				elsif ($key =~ /status/){
-					$term_group_src->status($value);
-				}
-				elsif ($key =~ /customer/i){
-					$term_group_src->customer($value);
-				}
-				else {
-					$term_group_src->note($value);
-				}
+				($term_group_src, $lang_group_src) = set_terms($key, $value, $src, $term_group_src, $lang_group_src);
 			}
 			elsif ($key =~ /tgt/){
-				if ($key =~ /tgt$/){
-				$lang_group_tgt = TBX::Min::LangGroup->new({code => $tgt});
-				$term_group_tgt = TBX::Min::TermGroup->new({term => $value});
-				}
-				elsif ($key =~ /pos$/){
-					$term_group_tgt->part_of_speech($value);
-				}
-				elsif ($key =~ /status/){
-					$term_group_tgt->status($value);
-				}
-				elsif ($key =~ /customer/i){
-					$term_group_tgt->customer($value);
-				}
-				else {
-					$term_group_tgt->note($value);
-				}
+				($term_group_tgt, $lang_group_tgt) = set_terms($key, $value, $tgt, $term_group_tgt, $lang_group_tgt);
 			}
 			elsif ($key =~ /\bid\b/i){
 				$concept->id($value);
@@ -147,4 +116,26 @@ sub export_tbxnny {
 	}
 	print OUT $TBX->as_xml;
 }
+
+sub set_terms {
+	my ($key, $value, $src_or_tgt, $term_group, $lang_group) = @_;
+	if ($key =~ /src$|tgt$/){
+			$lang_group = TBX::Min::LangGroup->new({code => $src_or_tgt});
+			$term_group = TBX::Min::TermGroup->new({term => $value});
+	}
+	elsif ($key =~ /pos$/){
+		$term_group->part_of_speech($value);
+	}
+	elsif ($key =~ /status/){
+		$term_group->status($value);
+	}
+	elsif ($key =~ /customer/i){
+		$term_group->customer($value);
+	}
+	else {
+		$term_group->note($value);
+	}
+	return ($term_group, $lang_group);
+}
+
 export_tbxnny(import_utx());
