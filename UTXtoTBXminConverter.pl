@@ -9,7 +9,7 @@
 # updated as needed by James Hayes November 2013
 
 
-use 5.014;
+use 5.016;
 use strict;
 use warnings;
 use DateTime;
@@ -91,7 +91,7 @@ sub export_tbxnny {
 	say OUT "<?xml version='1.0' encoding=\"UTF-8\"?>";
 
 	foreach my $hash_ref (@record) {
-		my ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $concept);
+		state ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $concept);
 		my %hash = %$hash_ref;
 		$concept = TBX::Min::ConceptEntry->new();
 		while(my ($key, $value) = each %hash){
