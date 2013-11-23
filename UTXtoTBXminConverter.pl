@@ -90,21 +90,33 @@ sub export_tbxnny {
 	#~ $TBX->{concepts} = [];
 	say OUT "<?xml version='1.0' encoding=\"UTF-8\"?>";
 
+	#	This goes through each 
 	foreach my $hash_ref (@record) {
-		state ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $concept);
+		my ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $concept, @redo);
 		my %hash = %$hash_ref;
 		$concept = TBX::Min::ConceptEntry->new();
 		while(my ($key, $value) = each %hash){
-			if ($key =~ /src/){
-				($term_group_src, $lang_group_src) = set_terms($key, $value, $src, $term_group_src, $lang_group_src);
+			if ($key =~ /src$/){
+				$lang_group_src = TBX::Min::LangGroup->new({code => $src});
+				$term_group_src = TBX::Min::TermGroup->new({term => $value});
 			}
-			elsif ($key =~ /tgt/){
-				($term_group_tgt, $lang_group_tgt) = set_terms($key, $value, $tgt, $term_group_tgt, $lang_group_tgt);
+			elsif ($key =~ /tgt$/){
+				$lang_group_tgt = TBX::Min::LangGroup->new({code => $tgt});
+				$term_group_tgt = TBX::Min::TermGroup->new({term => $value});
 			}
 			elsif ($key =~ /\bid\b/i){
 				$concept->id($value);
 			}
 		}
+		while(my ($key, $value) = each %hash){
+			if ($key =~ /src/ && $key !~ /src$/){
+				($term_group_src, $lang_group_src) = set_terms($key, $value, $src, $term_group_src, $lang_group_src);
+			}
+			elsif ($key =~ /tgt/ && $key !~ /tgt$/){
+				($term_group_tgt, $lang_group_tgt) = set_terms($key, $value, $src, $term_group_tgt, $lang_group_tgt);
+			}
+		}
+		
 		if (defined $term_group_src){
 			$lang_group_src->add_term_group($term_group_src);
 			$concept->add_lang_group($lang_group_src);
@@ -121,11 +133,7 @@ sub export_tbxnny {
 
 sub set_terms {
 	my ($key, $value, $src_or_tgt, $term_group, $lang_group) = @_;
-	if ($key =~ /src$|tgt$/){
-			$lang_group = TBX::Min::LangGroup->new({code => $src_or_tgt});
-			$term_group = TBX::Min::TermGroup->new({term => $value});
-	}
-	elsif ($key =~ /pos$/){
+	if ($key =~ /pos$/){
 		$term_group->part_of_speech($value);
 	}
 	elsif ($key =~ /status/){
