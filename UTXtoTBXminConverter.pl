@@ -16,6 +16,8 @@ use DateTime;
 use TBX::Min;
 use open ':encoding(utf8)', ':std';
 
+@ARGV == 2 or die 'usage: UTX-TBXnny-Converter.pl <utx_path> <output_path>';
+
 open my $in, '<', $ARGV[0]
 		or die "cannot open $ARGV[0] for reading\n";
 open OUT, '>', $ARGV[1]
@@ -57,7 +59,7 @@ sub import_utx {
 		# turn line to list, then list to hash
 		my @field = split /\t/;
 		my %record;
-		%record = map {$field_name[$_] => $field[$_]} (0..$#field); 
+		%record = map {$field_name[$_] => $field[$_]} (0..$#field);
 		# clear out blanks, except src and tgt
 		for my $field (grep {$_ ne 'src' and $_ ne 'tgt'} keys %record) {
 			delete $record{$field} unless $record{$field} =~ /\S/
@@ -84,10 +86,10 @@ sub export_tbxnny {
 	$TBX->directionality($directionality);
 	$TBX->license($license);
 	$TBX->id($id);
-	
+
 	#~ $TBX->{concepts} = [];
 	say OUT "<?xml version='1.0' encoding=\"UTF-8\"?>";
-	
+
 	foreach my $hash_ref (@record) {
 		my ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $concept);
 		my %hash = %$hash_ref;
