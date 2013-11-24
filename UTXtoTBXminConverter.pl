@@ -27,21 +27,22 @@ sub import_utx {
 
 	my ($id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record, @field_name);
 
-	# first header line
-	$_ = <$in>;
-	die "not a UTX file\n" unless /^#UTX/;
-	s/\s*$//; # chomp all trailing whitespace: space, CR, LF, whatever.
-	($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
-	$creator = $1 if /creator|copyright: ?([^;]+)/i; # error later if not
-	$license = $1 if /license: ?([^;]+)/i;
-	$description = $1 if /comment|description: ?([^;]+)/i;
-	$id = $1 if /dictionary id:* ?([^;]+)/i;
-	$directionality = $1 if /(bidirectional)/i;
-	$subject = $1 if /subject\w*: ?([^;]+)/i;
-
-	# second header line
-	# keep checking until 'src' or 'tgt' are found.  This is in case the second header is a description (which it shouldn't be)
-	do {$_ = <$in>} until ($_ =~ /^#[src|tgt]/i);
+	# header lines
+	# input all relevant information until last line of header is found
+	# keep checking until 'src' or 'tgt' (last line of a UTX header)
+	do {
+		state $linein++;
+		$_ = <$in>;
+		if ($linein == 1){die "not a UTX file\n" unless /^#UTX/}
+		s/\s*$//; # chomp all trailing whitespace: space, CR, LF, whatever.
+		($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
+		$creator = $1 if /creator|copyright: ?([^;]+)/i; # error later if not
+		$license = $1 if /license: ?([^;]+)/i;
+		$description = $1 if /comment|description: ?([^;]+)/i;
+		$id = $1 if /dictionary id:* ?([^;]+)/i;
+		$directionality = $1 if /(bidirectional)/i;
+		$subject = $1 if /subject\w*: ?([^;]+)/i;
+	} until ($_ =~ /^#[src|tgt]/i);
 	s/\s*$//;
 	s/^#//;
 	@field_name = split /\t/;
