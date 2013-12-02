@@ -40,7 +40,7 @@ sub export_utx {
 	$description = "description: ".$TBX->description.";" if (defined $TBX->description);
 	$concepts = $TBX->concepts;
 	
-	#print header
+	#print headercd git
 	print OUT "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID";
 	if (defined $description){ print OUT "#$description\n"} #print middle of header if necessary
 	print OUT "#src	tgt	src:pos";  #print necessary values of final line of Header
