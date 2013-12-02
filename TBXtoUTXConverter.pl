@@ -8,7 +8,6 @@ use strict;
 use warnings;
 use DateTime;
 use TBX::Min;
-use XML::Rules;
 use open ':encoding(utf8)', ':std';
 
 @ARGV == 2 or die 'usage: TBX-UTX-Converter.pl <tbx_path> <output_path>';
@@ -42,9 +41,7 @@ sub export_utx {
 	$concepts = $TBX->concepts;
 	
 	#print header
-	print OUT <<Header;
-#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID
-Header
+	print OUT "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID";
 	if (defined $description){ print OUT "#$description\n"} #print middle of header if necessary
 	print OUT "#src	tgt	src:pos";  #print necessary values of final line of Header
 	
