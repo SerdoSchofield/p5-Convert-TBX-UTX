@@ -41,16 +41,12 @@ sub export_utx {
 	$concepts = $TBX->concepts;
 	
 	#print header
-	print OUT "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID";
-	if (defined $description){ print OUT "#$description\n"} #print middle of header if necessary
+	print OUT "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID\n";
+	print OUT "#$description\n" if (defined $description); #print middle of header if necessary
 	print OUT "#src	tgt	src:pos";  #print necessary values of final line of Header
 	
 	my @output;
-	state $tgt_pos_exists = 0;
-	state $status_exists = 0;
-	state $customer_exists = 0;
-	state $src_note_exists = 0;
-	state $tgt_note_exists = 0;
+	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists) = 0;
 	
 	foreach my $concept (@$concepts){
 		my ($concept_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer, $status);
