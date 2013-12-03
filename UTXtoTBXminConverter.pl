@@ -135,10 +135,19 @@ sub export_tbxnny {
 sub set_terms {
 	my ($key, $value, $src_or_tgt, $term_group, $lang_group) = @_;
 	if ($key =~ /pos$/){
+		
+		$value = "other" if $value !~ /verb|adjective|adverb|noun/i;
+		
 		$term_group->part_of_speech($value);
 	}
 	elsif ($key =~ /status/){
-		$term_group->status($value);
+		
+		$value = "admitted" if $value =~ /provisional/i;
+		$value = "preferred" if $value =~ /approved/i;
+		$value = "notRecommended" if $value =~ /non-standard/i;
+		$value = "obsolete" if $value =~ /forbidden/i;
+		
+		$term_group->status($value) if $value =~ /admitted|preferred|notRecommended|obsolete/i;
 	}
 	elsif ($key =~ /customer/i){
 		$term_group->customer($value);
