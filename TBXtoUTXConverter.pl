@@ -60,7 +60,9 @@ sub export_utx {
 			foreach my $term_group (@$term_groups){
 				if ($code eq $source_lang){
 					$src_term = $term_group->term."\t";
-					(defined $term_group->part_of_speech) ? ($src_pos = $term_group->part_of_speech) : ($src_pos = "-");
+					
+					my $value = $term_group->part_of_speech;
+					(defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i) ? ($src_pos = $value) : ($src_pos = "-");
 					
 					if (defined $term_group->note){
 						($src_note = "\t".$term_group->note);
@@ -70,8 +72,9 @@ sub export_utx {
 				elsif ($code eq $target_lang){
 					$tgt_term = $term_group->term."\t";
 					
-					if (defined $term_group->part_of_speech){
-						$tgt_pos = "\t".$term_group->part_of_speech;
+					my $value = $term_group->part_of_speech;
+					if (defined $value && $value =~ /noun|properNoun|verb|adjective|adverb|sentece/i){ #technically sentence should never exist in current TBX-Min
+						$tgt_pos = "\t".$value;
 						$tgt_pos_exists = 1;
 					}
 					
@@ -86,7 +89,16 @@ sub export_utx {
 					$customer_exists = 1;
 				}
 				if (defined $term_group->status){
-					($status = "\t".$term_group->status);
+					
+					my $value = $term_group->status;
+					$status = $value if $value =~ /admitted|preferred|notRecommended|obsolete/i;
+					
+					$status = "provisional" if $status =~ /admitted/i;
+					$status = "approved" if $status =~ /preferred/i;
+					$status = "non-standard" if $status =~ /notRecommended/i;
+					$status = "forbidden" if $status =~ /obsolete/i;
+					
+					$status = "\t".$status if defined $status;
 					$status_exists = 1;
 				}
 				
