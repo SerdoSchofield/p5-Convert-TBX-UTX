@@ -12,13 +12,13 @@ use open ':encoding(utf8)', ':std';
 
 @ARGV == 2 or die 'usage: TBX-UTX-Converter.pl <tbx_path> <output_path>';
 
-open my $in, '<', $ARGV[0]
+open IN, '<', $ARGV[0]
 		or die "cannot open $ARGV[0] for reading\n";
 open OUT, '>', $ARGV[1]
 		or die "Please specify an Output file";
 
 sub import_tbx {  #really only checks for validity of TBX file
-	@_ = <$in>;
+	@_ = <IN>;
 	die "Not a TBX-Min file" unless ($_[1] =~ /tbx-min/i);
 }
 
@@ -46,11 +46,11 @@ sub export_utx {
 	print OUT "#src	tgt	src:pos";  #print necessary values of final line of Header
 	
 	my @output;
-	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists) = 0;
+	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists) = 0;
 	
 	foreach my $concept (@$concepts){
-		my ($concept_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer, $status);
-		(defined $concept->id) ? ($concept_id = "\t".$concept->id) : 0; #($concept_id = "\t-");
+		my ($concept_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer);
+		(defined $concept->id) ? (($concept_id = "\t".$concept->id) && ($concept_id_exists = 1)) : 0; #($concept_id = "\t-");
 		$lang_groups = $concept->lang_groups;
 		
 		foreach my $lang_group (@$lang_groups){
@@ -58,6 +58,9 @@ sub export_utx {
 			my $code = $lang_group->code;
 			
 			foreach my $term_group (@$term_groups){
+				
+				my $status;
+				
 				if ($code eq $source_lang){
 					$src_term = $term_group->term."\t";
 					
@@ -88,10 +91,10 @@ sub export_utx {
 					($customer = "\t".$term_group->customer);
 					$customer_exists = 1;
 				}
-				if (defined $term_group->status){
+				if (defined $term_group->status){{
 					
 					my $value = $term_group->status;
-					$status = $value if $value =~ /admitted|preferred|notRecommended|obsolete/i;
+					($value =~ /admitted|preferred|notRecommended|obsolete/i) ? ($status = $value) : next;
 					
 					$status = "provisional" if $status =~ /admitted/i;
 					$status = "approved" if $status =~ /preferred/i;
@@ -100,28 +103,29 @@ sub export_utx {
 					
 					$status = "\t".$status if defined $status;
 					$status_exists = 1;
-				}
+				}}
 				
 				if (defined $src_term && defined $tgt_term){
 					my @output_line = ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $concept_id);
 					push @output, \@output_line;
-					#~ print_out($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $note, $concept_id);
 				}
 			}
 		}
 	}
-	return [$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, @output];
+	
+	print_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists, @output]);
 }
 
-sub print_out { #accepts $exists, and @output
+sub print_utx { #accepts $exists, and @output
 	my $args = shift;
-	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, @output) = @$args;
+	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists, @output) = @$args;
 	
 	print OUT "\ttgt:pos" if ($tgt_pos_exists);
 	print OUT "\tterm status" if ($status_exists);
 	print OUT "\tcustomer" if ($customer_exists);
 	print OUT "\tsrc:comment" if ($src_note_exists);
 	print OUT "\ttgt:comment" if ($tgt_note_exists);
+	print OUT "\tconcept ID" if ($concept_id_exists);
 	
 	foreach my $output_line_ref (@output) {
 				
@@ -135,8 +139,9 @@ sub print_out { #accepts $exists, and @output
 			if ($customer_exists){ (defined $customer) ? (print OUT "$customer") : (print OUT "\t-") }
 			if ($src_note_exists){ (defined $src_note) ? (print OUT "$src_note") : (print OUT "\t-") }
 			if ($tgt_note_exists){ (defined $tgt_note) ? (print OUT "$tgt_note") : (print OUT "\t-") }
+			if ($concept_id_exists){ (defined $concept_id) ? (print OUT "$concept_id") : (print OUT "\t-") }
 		}
 	}
 }
 
-print_out(export_utx(import_tbx()));
+export_utx(import_tbx());

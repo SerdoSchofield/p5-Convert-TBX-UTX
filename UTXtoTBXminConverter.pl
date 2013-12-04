@@ -18,7 +18,7 @@ use open ':encoding(utf8)', ':std';
 
 @ARGV == 2 or die 'usage: UTX-TBXnny-Converter.pl <utx_path> <output_path>';
 
-open my $in, '<', $ARGV[0]
+open IN, '<', $ARGV[0]
 		or die "cannot open $ARGV[0] for reading\n";
 open OUT, '>', $ARGV[1]
 		or die "Please specify an Output file";
@@ -32,7 +32,7 @@ sub import_utx {
 	# keep checking until 'src' or 'tgt' (last line of a UTX header)
 	do {
 		state $linein++;
-		$_ = <$in>;
+		$_ = <IN>;
 		if ($linein == 1){die "not a UTX file\n" unless /^#UTX/}
 		s/\s*$//; # chomp all trailing whitespace: space, CR, LF, whatever.
 		($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
@@ -53,7 +53,7 @@ sub import_utx {
 	# but we defer POS issues here
 
 	# body lines
-	while (<$in>) {
+	while (<IN>) {
 		next if /^#/;
 		s/\s*$//;
 		next if /^$/;
@@ -105,16 +105,20 @@ sub export_tbxnny {
 				$lang_group_tgt = TBX::Min::LangGroup->new({code => $tgt});
 				$term_group_tgt = TBX::Min::TermGroup->new({term => $value});
 			}
-			elsif ($key =~ /\bid\b/i){
-				$concept->id($value);
-			}
+			
 		}
 		while(my ($key, $value) = each %hash){
 			if ($key =~ /src/ && $key !~ /src$/){
-				($term_group_src, $lang_group_src) = set_terms($key, $value, $src, $term_group_src, $lang_group_src);
+				($term_group_src, $lang_group_src) = set_terms($key, $value, $term_group_src, $lang_group_src);
 			}
 			elsif ($key =~ /tgt/ && $key !~ /tgt$/){
-				($term_group_tgt, $lang_group_tgt) = set_terms($key, $value, $src, $term_group_tgt, $lang_group_tgt);
+				($term_group_tgt, $lang_group_tgt) = set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
+			}
+			elsif ($key =~ /\bid\b/i){
+				$concept->id($value);
+			}
+			elsif($key !~ /src|tgt/i){
+				($term_group_tgt, $lang_group_tgt) = set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
 			}
 		}
 		
@@ -130,25 +134,23 @@ sub export_tbxnny {
 		$TBX->add_concept($concept);
 	}
 	print OUT $TBX->as_xml;
-}
+} #end export_tbxnny
 
-sub set_terms {
-	my ($key, $value, $src_or_tgt, $term_group, $lang_group) = @_;
+sub set_terms {  #used when exporting to TBX
+	my ($key, $value, $term_group, $lang_group) = @_;
 	if ($key =~ /pos$/){
 		
 		$value = "other" if $value !~ /verb|adjective|adverb|noun/i;
 		
 		$term_group->part_of_speech($value);
 	}
-	elsif ($key =~ /status/){
-		
+	elsif ($key =~ /status$/){{
 		$value = "admitted" if $value =~ /provisional/i;
 		$value = "preferred" if $value =~ /approved/i;
 		$value = "notRecommended" if $value =~ /non-standard/i;
 		$value = "obsolete" if $value =~ /forbidden/i;
-		
-		$term_group->status($value) if $value =~ /admitted|preferred|notRecommended|obsolete/i;
-	}
+		($value =~ /admitted|preferred|notRecommended|obsolete/i) ? $term_group->status($value) : next;
+	}}
 	elsif ($key =~ /customer/i){
 		$term_group->customer($value);
 	}
