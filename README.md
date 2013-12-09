@@ -17,7 +17,7 @@ There are three converters provided:
 Usage: 
 ======
 
-~$ perl <Converter Name> <Input .tbx or .utx> <Output .tbx or .utx>
+~$ perl (Converter Name) (Input .tbx or .utx) (Output .tbx or .utx)
 
 ***All arguments must have proper file extenstions to work.***
 
