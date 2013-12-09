@@ -13,9 +13,10 @@ There are three converters provided:
 3: DualConverter(UTX-TBXmin).pl  ->  This is a combination of the first two converters.  It takes in either TBX or UTX 1.11 files and outputs their respective counterpart (TBX->UTX, UTX->TBX)
 
 
+Usage:  
 ======
-Usage: ~$ perl (Converter Name) (Input .tbx or .utx) (Output .tbx or .utx) 
-======
+
+*~$ perl (Converter Name) (Input .tbx or .utx) (Output .tbx or .utx)*
 
 ***All arguments must have proper file extenstions to work.***
 
