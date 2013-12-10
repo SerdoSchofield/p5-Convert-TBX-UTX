@@ -15,6 +15,9 @@ There are three converters provided:
 
 Usage:  
 ======
+***Required Modules: TBX::Min, DateTime***
+
+
 
 *~$ perl (Converter Name) (Input .tbx or .utx) (Output .tbx or .utx)*
 
@@ -25,4 +28,3 @@ Usage:
 Example (TBX-Min to UTX): DualConverter(UTX-TBXmin).pl Input.tbx Output.utx
 
 Example (UTX to TBX-Min): DualConverter(UTX-TBXmin).pl Input.utx Output.tbx
-
