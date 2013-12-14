@@ -54,9 +54,11 @@ sub import_utx {
 	do {
 		state $linein++;
 		$_ = <IN>;
-		if ($linein == 1){die "not a UTX file\n" unless /^#UTX/}
 		s/\s*$//; # chomp all trailing whitespace: space, CR, LF, whatever.
-		($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
+		if ($linein == 1){
+			die "not a UTX file\n" unless /^#UTX/;
+			($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
+		}
 		$creator = $1 if /creator|copyright: ?([^;]+)/i; # error later if not
 		$license = $1 if /license: ?([^;]+)/i;
 		$description = $1 if /comment|description: ?([^;]+)/i;
