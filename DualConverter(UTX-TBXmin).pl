@@ -1,5 +1,6 @@
 #!usr/bin/perl
 
+package Converter::DualConverter_UTX_TBXmin;
 use 5.016;
 use strict;
 use warnings;
@@ -7,44 +8,47 @@ use DateTime;
 use TBX::Min;
 use open ':encoding(utf8)', ':std';
 
-my ($in, $out, $die_message);
+sub __run__ {
+	my ($in, $out, $die_message);
 
-$die_message = "\nExample (TBX-Min to UTX): Converter(UTX-TBXmin).pl Input.tbx Output.utx\n"
-	."Example (UTX to TBX-Min): Converter(UTX-TBXmin).pl Input.utx Output.tbx\n\n";
+	$die_message = "\nExample (TBX-Min to UTX): Converter(UTX-TBXmin).pl Input.tbx Output.utx\n"
+		."Example (UTX to TBX-Min): Converter(UTX-TBXmin).pl Input.utx Output.tbx\n\n";
 
-@ARGV == 2 or die "usage: Converter(UTX-TBXmin).pl <input_path(.tbx or .utx)> <output_path(.tbx or .utx)>\n".
-				$die_message;
+	@ARGV == 2 or die "usage: Converter(UTX-TBXmin).pl <input_path(.tbx or .utx)> <output_path(.tbx or .utx)>\n".
+					$die_message;
 
-($ARGV[0] =~ /\.(tbx|utx)/i) ?
-	(open IN, '<', $ARGV[0]) :
-	(die "File Extensions must be either .tbx or .utx\n".$die_message);
+	($ARGV[0] =~ /\.(tbx|utx)/i) ?
+		(open IN, '<', $ARGV[0]) :
+		(die "File Extensions must be either .tbx or .utx\n".$die_message);
 
-($ARGV[1] =~ /\.(tbx|utx)/i) ?
-	(open OUT, '>', $ARGV[1]) :
-	(die "File Extensions must be either .tbx or .utx\n".$die_message);
-
-
-my $file_ext = qr/\.(tbx|utx)/i;
-$in = lc $1 if ($ARGV[0] =~ /$file_ext/);
-$out = lc $1 if ($ARGV[1] =~ /$file_ext/);
-die "Both files cannot have the same extension:\n$die_message" if $in eq $out;
-
-my %import_type = (
-		tbx => \&import_tbx,
-		utx => \&import_utx
-	);
-my %export_type = (
-		tbx => \&export_tbxnny,
-		utx => \&export_utx
-	);
+	($ARGV[1] =~ /\.(tbx|utx)/i) ?
+		(open OUT, '>', $ARGV[1]) :
+		(die "File Extensions must be either .tbx or .utx\n".$die_message);
 
 
-sub import_tbx {  #really only checks for validity of TBX file
+	my $file_ext = qr/\.(tbx|utx)/i;
+	$in = lc $1 if ($ARGV[0] =~ /$file_ext/);
+	$out = lc $1 if ($ARGV[1] =~ /$file_ext/);
+	die "Both files cannot have the same extension:\n$die_message" if $in eq $out;
+
+	my %import_type = (
+			tbx => \&__import_tbx__,
+			utx => \&__import_utx__
+		);
+	my %export_type = (
+			tbx => \&__export_tbxnny__,
+			utx => \&__export_utx__
+		);
+		
+	$export_type{$out}->($import_type{$in}->());
+}
+
+sub __import_tbx__ {  #really only checks for validity of TBX file
 	@_ = <IN>;
 	die "Not a TBX-Min file" unless ("@_" =~ /tbx-min/i);
 }
 
-sub import_utx {
+sub __import_utx__ {
 
 	my ($id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record, @field_name);
 
@@ -95,7 +99,7 @@ sub import_utx {
 
 } # end import_utx
 
-sub export_tbxnny {
+sub __export_tbxnny__ {
 	my $glossary = shift;
 	my ($id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
 
@@ -132,16 +136,16 @@ sub export_tbxnny {
 		}
 		while(my ($key, $value) = each %hash){
 			if ($key =~ /src/ && $key !~ /src$/){
-				($term_group_src, $lang_group_src) = set_terms($key, $value, $term_group_src, $lang_group_src);
+				($term_group_src, $lang_group_src) = __set_terms__($key, $value, $term_group_src, $lang_group_src);
 			}
 			elsif ($key =~ /tgt/ && $key !~ /tgt$/){
-				($term_group_tgt, $lang_group_tgt) = set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
+				($term_group_tgt, $lang_group_tgt) = __set_terms__($key, $value, $term_group_tgt, $lang_group_tgt);
 			}
 			elsif ($key =~ /\bid\b/i){
 				$concept->id($value);
 			}
 			elsif($key !~ /src|tgt/i){
-				($term_group_tgt, $lang_group_tgt) = set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
+				($term_group_tgt, $lang_group_tgt) = __set_terms__($key, $value, $term_group_tgt, $lang_group_tgt);
 			}
 		}
 		
@@ -159,7 +163,7 @@ sub export_tbxnny {
 	print OUT $TBX->as_xml;
 } #end export_tbxnny
 
-sub export_utx {
+sub __export_utx__ {
 	my $TBX = TBX::Min->new_from_xml($ARGV[0]);
 	my ($source_lang, $target_lang, $creator, $license, $directionality, $DictID, 
 		$description, $concepts); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
@@ -250,10 +254,10 @@ sub export_utx {
 		}
 	}
 	
-	print_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists, @output]);
+	__print_utx__([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists, @output]);
 }
 
-sub set_terms {  #used when exporting to TBX
+sub __set_terms__ {  #used when exporting to TBX
 	my ($key, $value, $term_group, $lang_group) = @_;
 	if ($key =~ /pos$/){
 		
@@ -277,7 +281,7 @@ sub set_terms {  #used when exporting to TBX
 	return ($term_group, $lang_group);
 }
 
-sub print_utx { #accepts $exists, and @output
+sub __print_utx__ { #accepts $exists, and @output
 	my $args = shift;
 	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists, @output) = @$args;
 	
@@ -305,4 +309,4 @@ sub print_utx { #accepts $exists, and @output
 	}
 }
 
-$export_type{$out}->($import_type{$in}->());
+__run__();
