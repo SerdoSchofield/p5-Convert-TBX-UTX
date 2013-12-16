@@ -8,7 +8,23 @@ use DateTime;
 use TBX::Min;
 use open ':encoding(utf8)', ':std';
 
-sub __run__ {
+#converts utx to tbx
+sub convert_utx {
+	my @raw_data = split("\n", $_);
+	my @UTX = _import_utx(@raw_data);
+	my $TBX = _export_tbx(@UTX);
+	$TBX;
+}
+
+sub convert_tbx {
+	my @raw_data = split("\n", $_);
+	my @TBX = _import_tbx(@raw_data);
+	my $UTX = _export_utx(@TBX);
+	$UTX;
+}
+
+#private subroutines
+sub _run {
 	my ($in, $out, $die_message);
 
 	$die_message = "\nExample (TBX-Min to UTX): Converter(UTX-TBXmin).pl Input.tbx Output.utx\n"
@@ -32,23 +48,23 @@ sub __run__ {
 	die "Both files cannot have the same extension:\n$die_message" if $in eq $out;
 
 	my %import_type = (
-			tbx => \&__import_tbx__,
-			utx => \&__import_utx__
+			tbx => \&_import_tbx,
+			utx => \&_import_utx
 		);
 	my %export_type = (
-			tbx => \&__export_tbxnny__,
-			utx => \&__export_utx__
+			tbx => \&_export_tbxnny,
+			utx => \&_export_utx
 		);
-		
+
 	$export_type{$out}->($import_type{$in}->());
 }
 
-sub __import_tbx__ {  #really only checks for validity of TBX file
+sub _import_tbx {  #really only checks for validity of TBX file
 	@_ = <IN>;
 	die "Not a TBX-Min file" unless ("@_" =~ /tbx-min/i);
 }
 
-sub __import_utx__ {
+sub _import_utx {
 
 	my ($id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record, @field_name);
 
@@ -63,7 +79,7 @@ sub __import_utx__ {
 			die "not a UTX file\n" unless /^#UTX/;
 			($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
 		}
-		$creator = $1 if /creator|copyright: ?([^;]+)/i; # error later if not
+		$creator = $1 if /creator|copyright: ?([^;]+)/i;
 		$license = $1 if /license: ?([^;]+)/i;
 		$description = $1 if /comment|description: ?([^;]+)/i;
 		$id = $1 if /dictionary id:* ?([^;]+)/i;
@@ -99,7 +115,7 @@ sub __import_utx__ {
 
 } # end import_utx
 
-sub __export_tbxnny__ {
+sub _export_tbxnny {
 	my $glossary = shift;
 	my ($id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
 
@@ -114,9 +130,6 @@ sub __export_tbxnny__ {
 	$TBX->directionality($directionality);
 	$TBX->license($license);
 	$TBX->id($id);
-
-	#~ $TBX->{concepts} = [];
-	say OUT "<?xml version='1.0' encoding=\"UTF-8\"?>";
 
 	#	This goes through each 
 	foreach my $hash_ref (@record) {
@@ -136,16 +149,16 @@ sub __export_tbxnny__ {
 		}
 		while(my ($key, $value) = each %hash){
 			if ($key =~ /src/ && $key !~ /src$/){
-				($term_group_src, $lang_group_src) = __set_terms__($key, $value, $term_group_src, $lang_group_src);
+				($term_group_src, $lang_group_src) = _set_terms($key, $value, $term_group_src, $lang_group_src);
 			}
 			elsif ($key =~ /tgt/ && $key !~ /tgt$/){
-				($term_group_tgt, $lang_group_tgt) = __set_terms__($key, $value, $term_group_tgt, $lang_group_tgt);
+				($term_group_tgt, $lang_group_tgt) = _set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
 			}
 			elsif ($key =~ /\bid\b/i){
 				$concept->id($value);
 			}
 			elsif($key !~ /src|tgt/i){
-				($term_group_tgt, $lang_group_tgt) = __set_terms__($key, $value, $term_group_tgt, $lang_group_tgt);
+				($term_group_tgt, $lang_group_tgt) = _set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
 			}
 		}
 		
@@ -160,10 +173,12 @@ sub __export_tbxnny__ {
 		$concept->subject_field($subject);
 		$TBX->add_concept($concept);
 	}
-	print OUT $TBX->as_xml;
+	#~ print OUT $TBX->as_xml;
+	my $TBXstring .= "<?xml version='1.0' encoding=\"UTF-8\"?>".$TBX->as_xml;
+	return $TBXstring;
 } #end export_tbxnny
 
-sub __export_utx__ {
+sub _export_utx {
 	my $TBX = TBX::Min->new_from_xml($ARGV[0]);
 	my ($source_lang, $target_lang, $creator, $license, $directionality, $DictID, 
 		$description, $concepts); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
@@ -180,11 +195,6 @@ sub __export_utx__ {
 	$DictID = "  Dictionary ID: ".$TBX->id.";" if (defined $TBX->id);
 	$description = "description: ".$TBX->description.";" if (defined $TBX->description);
 	$concepts = $TBX->concepts;
-	
-	#print header
-	print OUT "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID\n";
-	print OUT "#$description\n" if (defined $description); #print middle of header if necessary
-	print OUT "#src	tgt	src:pos";  #print necessary values of final line of Header
 	
 	my @output;
 	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists) = 0;
@@ -254,10 +264,12 @@ sub __export_utx__ {
 		}
 	}
 	
-	__print_utx__([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists, @output]);
+	my $UTX = _print_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists,
+					$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output]);
+	return $UTX;
 }
 
-sub __set_terms__ {  #used when exporting to TBX
+sub _set_terms {  #used when exporting to TBX
 	my ($key, $value, $term_group, $lang_group) = @_;
 	if ($key =~ /pos$/){
 		
@@ -281,32 +293,41 @@ sub __set_terms__ {  #used when exporting to TBX
 	return ($term_group, $lang_group);
 }
 
-sub __print_utx__ { #accepts $exists, and @output
+sub _print_utx { #accepts $exists, and @output
 	my $args = shift;
-	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists, @output) = @$args;
+	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists,
+		$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output) = @$args;
+	my $UTX;
 	
-	print OUT "\ttgt:pos" if ($tgt_pos_exists);
-	print OUT "\tterm status" if ($status_exists);
-	print OUT "\tcustomer" if ($customer_exists);
-	print OUT "\tsrc:comment" if ($src_note_exists);
-	print OUT "\ttgt:comment" if ($tgt_note_exists);
-	print OUT "\tconcept ID" if ($concept_id_exists);
+	#print header
+	$UTX .= "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID\n";
+	$UTX .= "#$description\n" if (defined $description); #print middle of header if necessary
+	$UTX .= "#src	tgt	src:pos";  #print necessary values of final line of Header
+	
+	$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
+	$UTX .= "\tterm status" if ($status_exists);
+	$UTX .= "\tcustomer" if ($customer_exists);
+	$UTX .= "\tsrc:comment" if ($src_note_exists);
+	$UTX .= "\ttgt:comment" if ($tgt_note_exists);
+	$UTX .= "\tconcept ID" if ($concept_id_exists);
 	
 	foreach my $output_line_ref (@output) {
 				
 		my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $concept_id) = @$output_line_ref;
 		
 		if (defined $src_term && defined $tgt_term){
-			print OUT "\n$src_term$tgt_term$src_pos";
+			$UTX .= "\n$src_term$tgt_term$src_pos";
 			
-			if ($tgt_pos_exists){ (defined $tgt_pos) ? (print OUT "$tgt_pos") : (print OUT "\t-") }
-			if ($status_exists){ (defined $status) ? (print OUT "$status") : (print OUT "\t-") }
-			if ($customer_exists){ (defined $customer) ? (print OUT "$customer") : (print OUT "\t-") }
-			if ($src_note_exists){ (defined $src_note) ? (print OUT "$src_note") : (print OUT "\t-") }
-			if ($tgt_note_exists){ (defined $tgt_note) ? (print OUT "$tgt_note") : (print OUT "\t-") }
-			if ($concept_id_exists){ (defined $concept_id) ? (print OUT "$concept_id") : (print OUT "\t-") }
+			if ($tgt_pos_exists){ (defined $tgt_pos) ? ($UTX .= "$tgt_pos") : ($UTX .= "\t-") }
+			if ($status_exists){ (defined $status) ? ($UTX .= "$status") : ($UTX .= "\t-") }
+			if ($customer_exists){ (defined $customer) ? ($UTX .= "$customer") : ($UTX .= "\t-") }
+			if ($src_note_exists){ (defined $src_note) ? ($UTX .= "$src_note") : ($UTX .= "\t-") }
+			if ($tgt_note_exists){ (defined $tgt_note) ? ($UTX .= "$tgt_note") : ($UTX .= "\t-") }
+			if ($concept_id_exists){ (defined $concept_id) ? ($UTX .= "$concept_id") : ($UTX .= "\t-") }
 		}
 	}
+	#~ print OUT $UTX;
+	$UTX;
 }
 
-__run__();
+_run();
