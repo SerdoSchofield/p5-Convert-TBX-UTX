@@ -10,7 +10,7 @@ There are three converters provided:
 
 2: TBXtoUTXConverter.pl  ->  This converts TBXnny/TBX-Min to UTX version 1.11
 
-3: DualConverter(UTX-TBXmin).pl  ->  This is a combination of the first two converters.  It takes in either TBX or UTX 1.11 files and outputs their respective counterpart (TBX->UTX, UTX->TBX)
+3: DualConverter_UTX_TBXmin.pm  ->  This is a combination of the first two converters.  It takes in either TBX or UTX 1.11 files and outputs their respective counterpart (TBX->UTX, UTX->TBX)
 
 
 Usage:  
@@ -25,6 +25,6 @@ Usage:
 
 
 
-Example (TBX-Min to UTX): DualConverter(UTX-TBXmin).pl Input.tbx Output.utx
+Example (TBX-Min to UTX): DualConverter_UTX_TBXmin.pm Input.tbx Output.utx
 
-Example (UTX to TBX-Min): DualConverter(UTX-TBXmin).pl Input.utx Output.tbx
+Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pm Input.utx Output.tbx
