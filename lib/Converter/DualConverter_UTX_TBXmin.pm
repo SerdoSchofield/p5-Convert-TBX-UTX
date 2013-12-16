@@ -28,7 +28,7 @@ sub _run {
 	my ($in, $out, $die_message);
 
 	$die_message = "\nExample (TBX-Min to UTX): DualConverter_UTX_TBXmin.pm Input.tbx Output.utx\n"
-		."Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pml Input.utx Output.tbx\n\n";
+		."Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pm Input.utx Output.tbx\n\n";
 
 	@ARGV == 2 or die "usage: DualConverter_UTX_TBXmin.pm <input_path(.tbx or .utx)> <output_path(.tbx or .utx)>\n".
 					$die_message;
