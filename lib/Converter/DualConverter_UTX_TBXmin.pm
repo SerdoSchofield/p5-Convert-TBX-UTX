@@ -27,10 +27,10 @@ sub convert_tbx {
 sub _run {
 	my ($in, $out, $die_message);
 
-	$die_message = "\nExample (TBX-Min to UTX): Converter(UTX-TBXmin).pl Input.tbx Output.utx\n"
-		."Example (UTX to TBX-Min): Converter(UTX-TBXmin).pl Input.utx Output.tbx\n\n";
+	$die_message = "\nExample (TBX-Min to UTX): DualConverter_UTX_TBXmin.pm Input.tbx Output.utx\n"
+		."Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pml Input.utx Output.tbx\n\n";
 
-	@ARGV == 2 or die "usage: Converter(UTX-TBXmin).pl <input_path(.tbx or .utx)> <output_path(.tbx or .utx)>\n".
+	@ARGV == 2 or die "usage: DualConverter_UTX_TBXmin.pm <input_path(.tbx or .utx)> <output_path(.tbx or .utx)>\n".
 					$die_message;
 
 	($ARGV[0] =~ /\.(tbx|utx)/i) ?
@@ -56,7 +56,8 @@ sub _run {
 			utx => \&_export_utx
 		);
 
-	$export_type{$out}->($import_type{$in}->());
+	my $Converted = $export_type{$out}->($import_type{$in}->());
+	print OUT $Converted;
 }
 
 sub _import_tbx {  #really only checks for validity of TBX file
