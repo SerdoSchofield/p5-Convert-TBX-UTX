@@ -18,7 +18,7 @@ for my $block(blocks()){
 	else { die "nothing"; }
 }
 
-__Data__
+__DATA__
 === TBX
 --- input
 #UTX-S 0.91; ja-JP/en-US; 2008-05-21; copyright: Francis Bond (2008); bidirectional; dictionary ID 18347322
