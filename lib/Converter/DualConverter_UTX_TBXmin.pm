@@ -6,21 +6,25 @@ use warnings;
 use feature 'state';
 use DateTime;
 use TBX::Min;
+use Path::Tiny;
 use open ':encoding(utf8)', ':std';
 
 #converts utx to tbx
 sub convert_utx {
-	my @raw_data = split("\n", $_);
-	my @UTX = _import_utx(@raw_data);
+	my ($self, $data) = @_;
+	my $fhin = _get_handlein($data);
+	my @UTX = _import_utx($fhin);
 	my $TBX = _export_tbx(@UTX);
-	$TBX;
+	return $TBX;
 }
 
+#converts tbx to utx
 sub convert_tbx {
-	my @raw_data = split("\n", $_);
-	my @TBX = _import_tbx(@raw_data);
+	my ($self, $data) = @_;
+	my $fhin = _get_handlein($data);
+	my @TBX = _import_tbx($fhin);
 	my $UTX = _export_utx(@TBX);
-	$UTX;
+	return $UTX;
 }
 
 #private subroutines
@@ -32,34 +36,48 @@ sub _run {
 
 	@ARGV == 3 or die "usage: DualConverter_UTX_TBXmin.pm <--utx or --tbx (input file type)> <input_path> <output_path>\n".$die_message;
 
-	open IN, '<', $ARGV[1] 
-		or die "An error occured: $!";
+	# open IN, '<', $ARGV[1] 
+		# or die "An error occured: $!";
+	my $fhin = _get_handlein($ARGV[1]);
 	open OUT, '>', $ARGV[2] 
 		or die "An error occured: $!";
-
+	
 	$in = lc $1 if ($ARGV[0] =~ /--(tbx|utx)/i);
 	($in =~ /tbx/i) ? ($out = 'utx') : ($out = 'tbx');
 
 	my %import_type = (
-			tbx => \&_import_tbx,
-			utx => \&_import_utx
-		);
+		tbx => \&_import_tbx,
+		utx => \&_import_utx
+	);
 	my %export_type = (
-			tbx => \&_export_tbxnny,
-			utx => \&_export_utx
-		);
+		tbx => \&_export_tbxnny,
+		utx => \&_export_utx
+	);
 		
-	my $Converted = $export_type{$out}->($import_type{$in}->());
+	my $Converted = $export_type{$out}->($import_type{$in}->($fhin));
 	print OUT $Converted;
 }
 
+sub _get_handlein {
+	my ($data) = @_;
+	my $fh;
+	if((ref $data) eq 'SCALAR'){
+		open $fh,'<',$data;
+	}
+	else{
+		$fh = path($data)->filehandle('<');
+	}
+	return $fh;
+}
+
 sub _import_tbx {  #really only checks for validity of TBX file
-	@_ = <IN>;
-	die "Not a TBX-Min file" unless ("@_" =~ /tbx-min/i);
+	my ($fhin) = @_;
+	my @content = <$fhin>;
+	die "Not a TBX-Min file" unless ("@content" =~ /tbx-min/i);
 }
 
 sub _import_utx {
-
+	my ($fhin) = @_;
 	my ($id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record, @field_name);
 
 	# header lines
@@ -67,7 +85,7 @@ sub _import_utx {
 	# keep checking until 'src' or 'tgt' (last line of a UTX header)
 	do {
 		state $linein++;
-		$_ = <IN>;
+		$_ = <$fhin>;
 		s/\s*$//; # chomp all trailing whitespace: space, CR, LF, whatever.
 		if ($linein == 1){
 			die "not a UTX file\n" unless /^#UTX/;
@@ -90,7 +108,7 @@ sub _import_utx {
 	# but we defer POS issues here
 
 	# body lines
-	while (<IN>) {
+	while (<$fhin>) {
 		next if /^#/;
 		s/\s*$//;
 		next if /^$/;
@@ -321,7 +339,7 @@ sub _print_utx { #accepts $exists, and @output
 		}
 	}
 	#~ print OUT $UTX;
-	$UTX;
+	return $UTX;
 }
 
-_run();
+_run() unless caller();
