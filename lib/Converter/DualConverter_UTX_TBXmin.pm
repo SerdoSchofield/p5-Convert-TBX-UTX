@@ -1,9 +1,9 @@
 #!usr/bin/perl
 
 package Converter::DualConverter_UTX_TBXmin;
-use 5.016;
 use strict;
 use warnings;
+use feature 'state';
 use DateTime;
 use TBX::Min;
 use open ':encoding(utf8)', ':std';
