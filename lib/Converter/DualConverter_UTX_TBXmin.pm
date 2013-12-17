@@ -27,25 +27,18 @@ sub convert_tbx {
 sub _run {
 	my ($in, $out, $die_message);
 
-	$die_message = "\nExample (TBX-Min to UTX): DualConverter_UTX_TBXmin.pm Input.tbx Output.utx\n"
-		."Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pm Input.utx Output.tbx\n\n";
+	$die_message = "\nExample (TBX-Min to UTX): DualConverter_UTX_TBXmin.pm --tbx Input.tbx Output.utx\n"
+		."Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pm --utx Input.utx Output.tbx\n\n";
 
-	@ARGV == 2 or die "usage: DualConverter_UTX_TBXmin.pm <input_path(.tbx or .utx)> <output_path(.tbx or .utx)>\n".
-					$die_message;
+	@ARGV == 3 or die "usage: DualConverter_UTX_TBXmin.pm <--utx or --tbx (input file type)> <input_path> <output_path>\n".$die_message;
 
-	($ARGV[0] =~ /\.(tbx|utx)/i) ?
-		(open IN, '<', $ARGV[0]) :
-		(die "File Extensions must be either .tbx or .utx\n".$die_message);
+	open IN, '<', $ARGV[1] 
+		or die "An error occured: $!";
+	open OUT, '>', $ARGV[2] 
+		or die "An error occured: $!";
 
-	($ARGV[1] =~ /\.(tbx|utx)/i) ?
-		(open OUT, '>', $ARGV[1]) :
-		(die "File Extensions must be either .tbx or .utx\n".$die_message);
-
-
-	my $file_ext = qr/\.(tbx|utx)/i;
-	$in = lc $1 if ($ARGV[0] =~ /$file_ext/);
-	$out = lc $1 if ($ARGV[1] =~ /$file_ext/);
-	die "Both files cannot have the same extension:\n$die_message" if $in eq $out;
+	$in = lc $1 if ($ARGV[0] =~ /--(tbx|utx)/i);
+	($in =~ /tbx/i) ? ($out = 'utx') : ($out = 'tbx');
 
 	my %import_type = (
 			tbx => \&_import_tbx,
@@ -55,7 +48,7 @@ sub _run {
 			tbx => \&_export_tbxnny,
 			utx => \&_export_utx
 		);
-
+		
 	my $Converted = $export_type{$out}->($import_type{$in}->());
 	print OUT $Converted;
 }
@@ -180,7 +173,7 @@ sub _export_tbxnny {
 } #end export_tbxnny
 
 sub _export_utx {
-	my $TBX = TBX::Min->new_from_xml($ARGV[0]);
+	my $TBX = TBX::Min->new_from_xml($ARGV[1]);
 	my ($source_lang, $target_lang, $creator, $license, $directionality, $DictID, 
 		$description, $concepts); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
 	#note that in UTX 1.11, $source_lang, $target_lang,$creator, and $license are required
@@ -268,7 +261,7 @@ sub _export_utx {
 	my $UTX = _print_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists,
 					$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output]);
 	return $UTX;
-}
+} # end _export_utx
 
 sub _set_terms {  #used when exporting to TBX
 	my ($key, $value, $term_group, $lang_group) = @_;
