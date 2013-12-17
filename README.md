@@ -17,11 +17,8 @@ Usage:
 ======
 ***Required Modules: TBX::Min, DateTime***
 
+*~$ perl (Converter Name) (--tbx or --utx depending on Input type) (Input) (Output)*
 
-
-*~$ perl (Converter Name) (Input .tbx or .utx) (Output .tbx or .utx)*
-
-***All arguments must have proper file extenstions to work.***
 
 
 
