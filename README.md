@@ -22,6 +22,6 @@ Usage:
 
 
 
-Example (TBX-Min to UTX): DualConverter_UTX_TBXmin.pm Input.tbx Output.utx
+Example (TBX-Min to UTX): DualConverter_UTX_TBXmin.pm --tbx Input.tbx Output.utx
 
-Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pm Input.utx Output.tbx
+Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pm --utx Input.utx Output.tbx
