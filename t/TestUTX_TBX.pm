@@ -14,11 +14,16 @@ use Converter::DualConverter_UTX_TBXmin;
 sub convert_utx {
 	my ($self, $data) = @_;
 	my $converted = Converter::DualConverter_UTX_TBXmin->convert_utx($data);
-	return $converted;
+	$converted;
 }
 
 sub convert_tbx {
 	my ($self, $data) = @_;
 	my $converted = Converter::DualConverter_UTX_TBXmin->convert_tbx($data);
 	return $converted;
+}
+
+sub _format_out {
+	my ($self, $data) = @_;
+	$data;
 }

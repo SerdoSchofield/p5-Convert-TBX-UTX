@@ -7,13 +7,13 @@ use feature 'state';
 use DateTime;
 use TBX::Min;
 use Path::Tiny;
+use File::Slurp;
 use open ':encoding(utf8)', ':std';
 
 #converts utx to tbx
 sub convert_utx {
 	my ($self, $data) = @_;
-	my $fhin = _get_handlein($data);
-	my @UTX = _import_utx($fhin);
+	my @UTX = _import_utx($data);
 	my $TBX = _export_tbx(@UTX);
 	return $TBX;
 }
@@ -21,8 +21,7 @@ sub convert_utx {
 #converts tbx to utx
 sub convert_tbx {
 	my ($self, $data) = @_;
-	my $fhin = _get_handlein($data);
-	my @TBX = _import_tbx($fhin);
+	my @TBX = _import_tbx($data);
 	my $UTX = _export_utx(@TBX);
 	return $UTX;
 }
@@ -36,11 +35,7 @@ sub _run {
 
 	@ARGV == 3 or die "usage: DualConverter_UTX_TBXmin.pm <--utx or --tbx (input file type)> <input_path> <output_path>\n".$die_message;
 
-	# open IN, '<', $ARGV[1] 
-		# or die "An error occured: $!";
-	my $fhin = _get_handlein($ARGV[1]);
-	open OUT, '>', $ARGV[2] 
-		or die "An error occured: $!";
+	my $data = read_file($ARGV[1]);
 	
 	$in = lc $1 if ($ARGV[0] =~ /--(tbx|utx)/i);
 	($in =~ /tbx/i) ? ($out = 'utx') : ($out = 'tbx');
@@ -50,34 +45,27 @@ sub _run {
 		utx => \&_import_utx
 	);
 	my %export_type = (
-		tbx => \&_export_tbxnny,
+		tbx => \&_export_tbx,
 		utx => \&_export_utx
 	);
 		
-	my $Converted = $export_type{$out}->($import_type{$in}->($fhin));
-	print OUT $Converted;
-}
-
-sub _get_handlein {
-	my ($data) = @_;
-	my $fh;
-	if((ref $data) eq 'SCALAR'){
-		open $fh,'<',$data;
-	}
-	else{
-		$fh = path($data)->filehandle('<');
-	}
-	return $fh;
+	my $Converted = $export_type{$out}->($import_type{$in}->($data));
+	
+	open my $fhout, '>', $ARGV[2] 
+		or die "An error occured: $!";
+		
+	print $fhout $Converted;
 }
 
 sub _import_tbx {  #really only checks for validity of TBX file
-	my ($fhin) = @_;
-	my @content = <$fhin>;
-	die "Not a TBX-Min file" unless ("@content" =~ /tbx-min/i);
+	my $data = shift;
+	die "Not a TBX-Min file" unless ($data =~ /tbx-min/i);
+	return $data;
 }
 
 sub _import_utx {
-	my ($fhin) = @_;
+	my $data = shift;
+	open my $fhin, '<', \$data;
 	my ($id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record, @field_name);
 
 	# header lines
@@ -123,13 +111,13 @@ sub _import_utx {
 		push @record, \%record;
 	}
 
-	return [$id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record];
+	return [$data, $id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record];
 
 } # end import_utx
 
-sub _export_tbxnny {
+sub _export_tbx {
 	my $glossary = shift;
-	my ($id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
+	my ($data, $id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
 
 	my $timestamp = DateTime->now()->iso8601();
 
@@ -137,7 +125,7 @@ sub _export_tbxnny {
 	$TBX->source_lang($src);
 	$TBX->target_lang($tgt);
 	$TBX->creator($creator);
-	$TBX->date_created($timestamp);
+	#~ $TBX->date_created($timestamp);
 	$TBX->description($description);
 	$TBX->directionality($directionality);
 	$TBX->license($license);
@@ -186,12 +174,13 @@ sub _export_tbxnny {
 		$TBX->add_concept($concept);
 	}
 	#~ print OUT $TBX->as_xml;
-	my $TBXstring .= "<?xml version='1.0' encoding=\"UTF-8\"?>".$TBX->as_xml;
+	my $TBXstring .= "<?xml version='1.0' encoding=\"UTF-8\"?>\n".$TBX->as_xml;
 	return $TBXstring;
-} #end export_tbxnny
+} #end export_tbx
 
 sub _export_utx {
-	my $TBX = TBX::Min->new_from_xml($ARGV[1]);
+	my $data = shift;
+	my $TBX = TBX::Min->new_from_xml(\$data);
 	my ($source_lang, $target_lang, $creator, $license, $directionality, $DictID, 
 		$description, $concepts); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
 	#note that in UTX 1.11, $source_lang, $target_lang,$creator, and $license are required
@@ -303,7 +292,7 @@ sub _set_terms {  #used when exporting to TBX
 		$term_group->note($value);
 	}
 	return ($term_group, $lang_group);
-}
+} # end _set_terms
 
 sub _print_utx { #accepts $exists, and @output
 	my $args = shift;
@@ -340,6 +329,6 @@ sub _print_utx { #accepts $exists, and @output
 	}
 	#~ print OUT $UTX;
 	return $UTX;
-}
+} #end _print_utx
 
-_run() unless caller();
+_run() unless caller;
