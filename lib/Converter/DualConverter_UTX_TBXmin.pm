@@ -85,8 +85,8 @@ sub _import_utx {
 		$id = $1 if /dictionary id:* ?([^;]+)/i;
 		$directionality = $1 if /(bidirectional)/i;
 		$subject = $1 if /subject\w*: ?([^;]+)/i;
+		$linein = 0 if /^#[src|tgt]/i;  #needs to reset before next run-through of auto-tests
 	} until ($_ =~ /^#[src|tgt]/i);
-	s/\s*$//;
 	s/^#//;
 	@field_name = split /\t/;
 	die "no src column\n" unless $field_name[0] eq 'src';
@@ -301,7 +301,8 @@ sub _print_utx { #accepts $exists, and @output
 	my $UTX;
 	
 	#print header
-	$UTX .= "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID\n";
+	#~ $UTX .= "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID\n";
+	$UTX .= "#UTX 1.11;  $source_lang/$target_lang;  $creator$license$directionality$DictID\n";
 	$UTX .= "#$description\n" if (defined $description); #print middle of header if necessary
 	$UTX .= "#src	tgt	src:pos";  #print necessary values of final line of Header
 	
