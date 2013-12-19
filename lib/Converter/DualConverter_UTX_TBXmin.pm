@@ -79,12 +79,14 @@ sub _import_utx {
 			die "not a UTX file\n" unless /^#UTX/;
 			($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
 		}
-		$creator = $1 if /creator|copyright: ?([^;]+)/i;
-		$license = $1 if /license: ?([^;]+)/i;
-		$description = $1 if /comment|description: ?([^;]+)/i;
-		$id = $1 if /dictionary id:* ?([^;]+)/i;
-		$directionality = $1 if /(bidirectional)/i;
-		$subject = $1 if /subject\w*: ?([^;]+)/i;
+		if($_ !~ /^#[src|tgt]/i){
+			$creator = $1 if /creator|copyright: ?([^;]+)/i;
+			$license = $1 if /license: ?([^;]+)/i;
+			$description = $1 if /description: ?([^;]+)/i;
+			$id = $1 if /dictionary id:* ?([^;]+)/i;
+			$directionality = $1 if /(bidirectional)/i;
+			$subject = $1 if /subject\w*: ?([^;]+)/i;
+		}
 		$linein = 0 if /^#[src|tgt]/i;  #needs to reset before next run-through of auto-tests
 	} until ($_ =~ /^#[src|tgt]/i);
 	s/^#//;
@@ -190,11 +192,11 @@ sub _export_utx {
 	#Get values from input
 	$source_lang = $TBX->source_lang;
 	$target_lang = $TBX->target_lang;
-	$creator = "  copyright: ".$TBX->creator.";";
-	$license = "  license: ".$TBX->license.";";
-	$directionality = "  ".$TBX->directionality.";" if (defined $TBX->directionality);
-	$DictID = "  Dictionary ID: ".$TBX->id.";" if (defined $TBX->id);
-	$description = "description: ".$TBX->description.";" if (defined $TBX->description);
+	$creator = "copyright: ".$TBX->creator."; ";
+	$license = "license: ".$TBX->license."; ";
+	$directionality = $TBX->directionality."; " if (defined $TBX->directionality);
+	$DictID = "Dictionary ID: ".$TBX->id."; " if (defined $TBX->id);
+	$description = "description: ".$TBX->description."; " if (defined $TBX->description);
 	$concepts = $TBX->concepts;
 	
 	my @output;
@@ -302,7 +304,7 @@ sub _print_utx { #accepts $exists, and @output
 	
 	#print header
 	#~ $UTX .= "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID\n";
-	$UTX .= "#UTX 1.11;  $source_lang/$target_lang;  $creator$license$directionality$DictID\n";
+	$UTX .= "#UTX 1.11; $source_lang/$target_lang; $creator$license$directionality$DictID\n";
 	$UTX .= "#$description\n" if (defined $description); #print middle of header if necessary
 	$UTX .= "#src	tgt	src:pos";  #print necessary values of final line of Header
 	

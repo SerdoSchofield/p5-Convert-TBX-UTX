@@ -3,29 +3,25 @@ use strict;
 use warnings;
 use t::TestUTX_TBX;
 use Test::XML;
-plan tests => 2*blocks();
+plan tests => 1*blocks();
 
 filters {
-	utx => 'convert_utx',
+	tbx => 'convert_tbx',
 	output => '_format_out'
 };
 
 for my $block(blocks()){
-	is_xml($block->utx, $block->output, "Expected");
-}
-
-for my $block(blocks()){
-	is_good_xml($block->utx);
+	is($block->tbx, $block->output, "expected");
 }
 
 __DATA__
 === UTX Conversion
---- utx
-#UTX 1.11; ja-JP/en-US; copyright: Francis Bond (2008); license: CC-by 3.0; bidirectional; Dictionary ID: 18347322;
-#description: djalbja;
-#src	tgt	src:pos	src:comment	Concept ID
-NICE nice	NICE property	-	nice	C002
 --- output
+#UTX 1.11; ja-JP/en-US; copyright: Francis Bond (2008); license: CC-by 3.0; bidirectional; Dictionary ID: 18347322; 
+#description: djalbja; 
+#src	tgt	src:pos	src:comment	concept ID
+NICE nice	NICE property	-	nice	C002
+--- tbx
 <?xml version='1.0' encoding="UTF-8"?>
 <TBX dialect="TBX-Min">
 		<header>
