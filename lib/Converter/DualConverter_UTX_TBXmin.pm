@@ -6,7 +6,6 @@ use warnings;
 use feature 'state';
 use DateTime;
 use TBX::Min;
-use Path::Tiny;
 use File::Slurp;
 use open ':encoding(utf8)', ':std';
 
