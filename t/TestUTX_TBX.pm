@@ -25,6 +25,5 @@ sub convert_tbx {
 
 sub _format_out {
 	my ($self, $data) = @_;
-	chomp($data);
 	return $data;
 }

@@ -20,12 +20,12 @@ for my $block(blocks()){
 
 __DATA__
 === UTX Conversion
---- utx
+--- utx chomp
 #UTX 1.11; ja-JP/en-US; copyright: Francis Bond (2008); license: CC-by 3.0; bidirectional; Dictionary ID: 18347322;
 #description: djalbja;
 #src	tgt	src:pos	src:comment	Concept ID
 NICE nice	NICE property	-	nice	C002
---- output
+--- output chomp
 <?xml version='1.0' encoding="UTF-8"?>
 <TBX dialect="TBX-Min">
 		<header>
