@@ -123,14 +123,14 @@ sub _export_tbx {
 	my $timestamp = DateTime->now()->iso8601();
 
 	my $TBX = TBX::Min->new();
-	$TBX->source_lang($src);
-	$TBX->target_lang($tgt);
-	$TBX->creator($creator);
+	$TBX->source_lang($src) if (defined $src);
+	$TBX->target_lang($tgt) if (defined $tgt);
+	$TBX->creator($creator) if (defined $creator);
 	#~ $TBX->date_created($timestamp);
-	$TBX->description($description);
-	$TBX->directionality($directionality);
-	$TBX->license($license);
-	$TBX->id($id);
+	$TBX->description($description) if (defined $description);
+	$TBX->directionality($directionality) if (defined $directionality);
+	$TBX->license($license) if (defined $license);
+	$TBX->id($id) if (defined $id);
 
 	#	This goes through each 
 	foreach my $hash_ref (@record) {
@@ -156,7 +156,7 @@ sub _export_tbx {
 				($term_group_tgt, $lang_group_tgt) = _set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
 			}
 			elsif ($key =~ /\bid\b/i){
-				$concept->id($value);
+				$concept->id($value) if (defined $value);
 			}
 			elsif($key !~ /src|tgt/i){
 				($term_group_tgt, $lang_group_tgt) = _set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
@@ -203,7 +203,11 @@ sub _export_utx {
 	
 	foreach my $concept (@$concepts){
 		my ($concept_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer);
-		(defined $concept->id) ? (($concept_id = "\t".$concept->id) && ($concept_id_exists = 1)) : 0; #($concept_id = "\t-");
+	
+		if (defined $concept->id){
+			$concept_id = "\t".$concept->id;
+			$concept_id_exists = 1;
+		}
 		$lang_groups = $concept->lang_groups;
 		
 		foreach my $lang_group (@$lang_groups){
