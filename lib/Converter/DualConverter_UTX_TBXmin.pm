@@ -172,6 +172,7 @@ sub _export_tbx {
 			$concept->add_lang_group($lang_group_tgt);
 		}
 		$concept->subject_field($subject);
+		if (defined $concept->id == 0) {$concept->id('-')};
 		$TBX->add_concept($concept);
 	}
 	#~ print OUT $TBX->as_xml;
