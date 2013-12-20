@@ -65,13 +65,14 @@ sub _import_tbx {  #really only checks for validity of TBX file
 sub _import_utx {
 	my $data = shift;
 	open my $fhin, '<', \$data;
-	my ($id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record, @field_name);
+	my ($id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record, @field_name);
+	state $linein;
 
 	# header lines
 	# input all relevant information until last line of header is found
 	# keep checking until 'src' or 'tgt' (last line of a UTX header)
 	do {
-		state $linein++;
+		$linein++;
 		$_ = <$fhin>;
 		s/\s*$//; # chomp all trailing whitespace: space, CR, LF, whatever.
 		if ($linein == 1){
@@ -79,6 +80,7 @@ sub _import_utx {
 			($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
 		}
 		if($_ !~ /^#[src|tgt]/i){
+			$timestamp = $1 if /; ?([0-9T:+-]+)/;
 			$creator = $1 if /creator|copyright: ?([^;]+)/i;
 			$license = $1 if /license: ?([^;]+)/i;
 			$description = $1 if /description: ?([^;]+)/i;
@@ -86,47 +88,50 @@ sub _import_utx {
 			$directionality = $1 if /(bidirectional)/i;
 			$subject = $1 if /subject\w*: ?([^;]+)/i;
 		}
-		$linein = 0 if /^#[src|tgt]/i;  #needs to reset before next run-through of auto-tests
-	} until ($_ =~ /^#[src|tgt]/i);
-	s/^#//;
-	@field_name = split /\t/;
-	die "no src column\n" unless $field_name[0] eq 'src';
-	die "no tgt column\n" unless $field_name[1] eq 'tgt';
-	die "no pos column\n" unless $field_name[2] =~ /pos/i;
-	# a 'validating' UTX parser would also check for src:pos
-	# but we defer POS issues here
+	} until ($_ =~ /^#[src|tgt]/i or eof); #eof catch is used for testing
+	reset $linein;
+	
+	if ($_ =~ /^#[src|tgt]/i ){ #used for testing
+		s/^#//;
+		@field_name = split /\t/;
+		die "no src column\n" unless $field_name[0] eq 'src';
+		die "no tgt column\n" unless $field_name[1] eq 'tgt';
+		die "no pos column\n" unless $field_name[2] =~ /pos/i;
+		# a 'validating' UTX parser would also check for src:pos
+		# but we defer POS issues here
 
-	# body lines
-	while (<$fhin>) {
-		next if /^#/;
-		s/\s*$//;
-		next if /^$/;
-		# turn line to list, then list to hash
-		my @field = split /\t/;
-		my %record;
-		%record = map {$field_name[$_] => $field[$_]} (0..$#field);
-		# clear out blanks, except src and tgt
-		for my $field (grep {$_ ne 'src' and $_ ne 'tgt'} keys %record) {
-			delete $record{$field} unless $record{$field} =~ /\S/
+		# body lines
+		while (<$fhin>) {
+			next if /^#/;
+			s/\s*$//;
+			next if /^$/;
+			# turn line to list, then list to hash
+			my @field = split /\t/;
+			my %record;
+			%record = map {$field_name[$_] => $field[$_]} (0..$#field);
+			# clear out blanks, except src and tgt
+			for my $field (grep {$_ ne 'src' and $_ ne 'tgt'} keys %record) {
+				delete $record{$field} unless $record{$field} =~ /\S/
+			}
+			push @record, \%record;
 		}
-		push @record, \%record;
 	}
 
-	return [$data, $id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record];
+	return [$data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record];
 
 } # end import_utx
 
 sub _export_tbx {
 	my $glossary = shift;
-	my ($data, $id, $src, $tgt, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
+	my ($data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
 
-	my $timestamp = DateTime->now()->iso8601();
+	#~ my $timestamp = DateTime->now()->iso8601();
 
 	my $TBX = TBX::Min->new();
 	$TBX->source_lang($src) if (defined $src);
 	$TBX->target_lang($tgt) if (defined $tgt);
 	$TBX->creator($creator) if (defined $creator);
-	#~ $TBX->date_created($timestamp);
+	$TBX->date_created($timestamp);
 	$TBX->description($description) if (defined $description);
 	$TBX->directionality($directionality) if (defined $directionality);
 	$TBX->license($license) if (defined $license);
@@ -183,21 +188,22 @@ sub _export_tbx {
 sub _export_utx {
 	my $data = shift;
 	my $TBX = TBX::Min->new_from_xml(\$data);
-	my ($source_lang, $target_lang, $creator, $license, $directionality, $DictID, 
+	my ($source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, 
 		$description, $concepts); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
 	#note that in UTX 1.11, $source_lang, $target_lang,$creator, and $license are required
 	
-	my $timestamp = DateTime->now()->iso8601();
+	#~ my $timestamp = DateTime->now()->iso8601();   #this was used to generate timestamp at time of conversion rather than read in the old one
 	
 	#Get values from input
-	$source_lang = $TBX->source_lang;
-	$target_lang = $TBX->target_lang;
-	$creator = "copyright: ".$TBX->creator."; ";
-	$license = "license: ".$TBX->license."; ";
-	$directionality = $TBX->directionality."; " if (defined $TBX->directionality);
-	$DictID = "Dictionary ID: ".$TBX->id."; " if (defined $TBX->id);
-	$description = "description: ".$TBX->description."; " if (defined $TBX->description);
-	$concepts = $TBX->concepts;
+	$source_lang = $TBX->source_lang if (defined $TBX->source_lang);
+	$target_lang = $TBX->target_lang if (defined $TBX->target_lang);
+	$timestamp = $TBX->date_created if (defined $TBX->date_created);
+	$creator = "copyright: ".$TBX->creator if (defined $TBX->creator);
+	$license = "license: ".$TBX->license if (defined $TBX->license);
+	$directionality = $TBX->directionality if (defined $TBX->directionality);
+	$DictID = "Dictionary ID: ".$TBX->id if (defined $TBX->id);
+	$description = "description: ".$TBX->description if (defined $TBX->description);
+	$concepts = $TBX->concepts if (defined $TBX->concepts);
 	
 	my @output;
 	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists) = 0;
@@ -307,9 +313,15 @@ sub _print_utx { #accepts $exists, and @output
 	my $UTX;
 	
 	#print header
-	#~ $UTX .= "#UTX 1.11;  $source_lang/$target_lang;  $timestamp;$creator$license$directionality$DictID\n";
-	$UTX .= "#UTX 1.11; $source_lang/$target_lang; $creator$license$directionality$DictID\n";
-	$UTX .= "#$description\n" if (defined $description); #print middle of header if necessary
+	$UTX .= "#UTX 1.11;";
+	$UTX .= " $source_lang" if defined $source_lang;
+	$UTX .= "/$target_lang;" if defined $target_lang;
+	$UTX .= " $timestamp;" if defined $timestamp;
+	$UTX .= " $creator;" if defined $creator;
+	$UTX .= " $license;" if defined $license;
+	$UTX .= " $directionality;" if defined $directionality;
+	$UTX .= " $DictID;\n" if defined $DictID;
+	$UTX .= "#$description;\n" if (defined $description); #print middle of header if necessary
 	$UTX .= "#src	tgt	src:pos";  #print necessary values of final line of Header
 	
 	$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
@@ -328,9 +340,9 @@ sub _print_utx { #accepts $exists, and @output
 			
 			if ($tgt_pos_exists){ (defined $tgt_pos) ? ($UTX .= "$tgt_pos") : ($UTX .= "\t-") }
 			if ($status_exists){ (defined $status) ? ($UTX .= "$status") : ($UTX .= "\t-") }
-			if ($customer_exists){ (defined $customer) ? ($UTX .= "$customer") : ($UTX .= "\t-") }
 			if ($src_note_exists){ (defined $src_note) ? ($UTX .= "$src_note") : ($UTX .= "\t-") }
 			if ($tgt_note_exists){ (defined $tgt_note) ? ($UTX .= "$tgt_note") : ($UTX .= "\t-") }
+			if ($customer_exists){ (defined $customer) ? ($UTX .= "$customer") : ($UTX .= "\t-") }
 			if ($concept_id_exists){ (defined $concept_id) ? ($UTX .= "$concept_id") : ($UTX .= "\t-") }
 		}
 	}

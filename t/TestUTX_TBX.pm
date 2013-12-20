@@ -23,7 +23,12 @@ sub convert_tbx {
 	return $converted;
 }
 
-sub _format_out {
+sub _format_out_tbx {
+	my ($self, $data) = @_;
+	return $data;
+}
+
+sub _format_out_utx {
 	my ($self, $data) = @_;
 	return $data;
 }
