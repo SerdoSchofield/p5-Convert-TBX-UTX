@@ -65,8 +65,7 @@ sub _import_tbx {  #really only checks for validity of TBX file
 sub _import_utx {
 	my $data = shift;
 	open my $fhin, '<', \$data;
-	my ($id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record, @field_name);
-	state $linein;
+	my ($linein, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record, @field_name);
 
 	# header lines
 	# input all relevant information until last line of header is found
@@ -89,7 +88,6 @@ sub _import_utx {
 			$subject = $1 if /subject\w*: ?([^;]+)/i;
 		}
 	} until ($_ =~ /^#[src|tgt]/i or eof); #eof catch is used for testing
-	reset $linein;
 	
 	if ($_ =~ /^#[src|tgt]/i ){ #used for testing
 		s/^#//;
@@ -127,6 +125,7 @@ sub _export_tbx {
 
 	#~ my $timestamp = DateTime->now()->iso8601();
 
+	my $ID_Check = TBX::Min->new();
 	my $TBX = TBX::Min->new();
 	$TBX->source_lang($src) if (defined $src);
 	$TBX->target_lang($tgt) if (defined $tgt);
@@ -177,9 +176,32 @@ sub _export_tbx {
 			$concept->add_lang_group($lang_group_tgt);
 		}
 		$concept->subject_field($subject);
-		if (defined $concept->id == 0) {$concept->id('-')};
-		$TBX->add_concept($concept);
+		
+		$ID_Check->add_concept($concept);
 	}
+	
+	my (@concept_ids, $generated_ids);
+	my $concept_list = $ID_Check->concepts;
+	foreach my $concept_value (@$concept_list) {
+		my $c_id = $concept_value->id;
+		if (defined $c_id){
+			for ($c_id) {s/C([0-9]+)/$1/i};
+			push (@concept_ids, $c_id);
+		}
+	}
+	
+	#~ @concept_ids = sort{ $a <=> $b } @concept_ids;
+	foreach my $concept_value (@$concept_list) {
+		my $c_id = $concept_value->id;
+		
+		if (defined $c_id == 0 or $c_id =~ /-/) {
+			do  {$generated_ids++} until ("@concept_ids" !~ sprintf("%03d", $generated_ids));
+			push @concept_ids, $generated_ids;
+			$concept_value->id("C".sprintf("%03d", $generated_ids))
+		}
+		$TBX->add_concept($concept_value);
+	}	
+	
 	#~ print OUT $TBX->as_xml;
 	my $TBXstring .= "<?xml version='1.0' encoding=\"UTF-8\"?>\n".$TBX->as_xml;
 	return $TBXstring;
