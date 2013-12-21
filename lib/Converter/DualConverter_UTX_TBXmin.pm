@@ -115,6 +115,15 @@ sub _import_utx {
 		}
 	}
 
+	#test and adjust directionality if needed before sending it
+	if (defined $directionality) {
+		$directionality = 'monodirectional' if ($directionality ne 'bidirectional');
+	}
+	else{
+		$directionality = 'monodirectional'
+	}
+	$id = '-' if defined $id ==0;
+	
 	return [$data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record];
 
 } # end import_utx
@@ -138,9 +147,14 @@ sub _export_tbx {
 
 	#	This goes through each 
 	foreach my $hash_ref (@record) {
-		my ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $concept, @redo);
+		my ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $concept, $status_bidirectional, @redo);
 		my %hash = %$hash_ref;
 		$concept = TBX::Min::ConceptEntry->new();
+		
+		if (keys(%hash) !~ /status$/ && $directionality eq 'bidirectional'){
+				$status_bidirectional = "preferred";
+			}
+		
 		while(my ($key, $value) = each %hash){
 			if ($key =~ /src$/){
 				$lang_group_src = TBX::Min::LangGroup->new({code => $src});
@@ -154,10 +168,10 @@ sub _export_tbx {
 		}
 		while(my ($key, $value) = each %hash){
 			if ($key =~ /src/ && $key !~ /src$/){
-				($term_group_src, $lang_group_src) = _set_terms($key, $value, $term_group_src, $lang_group_src);
+				($term_group_src, $lang_group_src) = _set_terms($key, $value, $term_group_src, $lang_group_src, $status_bidirectional);
 			}
 			elsif ($key =~ /tgt/ && $key !~ /tgt$/){
-				($term_group_tgt, $lang_group_tgt) = _set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
+				($term_group_tgt, $lang_group_tgt) = _set_terms($key, $value, $term_group_tgt, $lang_group_tgt, $status_bidirectional);
 			}
 			elsif ($key =~ /\bid\b/i){
 				$concept->id($value) if (defined $value);
@@ -309,7 +323,7 @@ sub _export_utx {
 } # end _export_utx
 
 sub _set_terms {  #used when exporting to TBX
-	my ($key, $value, $term_group, $lang_group) = @_;
+	my ($key, $value, $term_group, $lang_group, $status_bidirectional) = @_;
 	if ($key =~ /pos$/){
 		
 		$value = "other" if $value !~ /verb|adjective|adverb|noun/i;
@@ -329,7 +343,8 @@ sub _set_terms {  #used when exporting to TBX
 	else {
 		$term_group->note($value);
 	}
-	return ($term_group, $lang_group);
+	$term_group->status($status_bidirectional) if defined $status_bidirectional; #UTX allows empty term status if bidirectionality flag is true
+	return ($term_group, $lang_group); #return to &_export_tbx;
 } # end _set_terms
 
 sub _print_utx { #accepts $exists, and @output

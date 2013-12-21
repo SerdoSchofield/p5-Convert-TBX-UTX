@@ -36,9 +36,51 @@ __DATA__
 	</body>
 </TBX>
 
+=== Test unstated directionality
+--- utx chomp
+#UTX 1.11; de/en-US; 2013-12-20T17:00:45; copyright: Francis Bond (2008); license: CC-by 3.0; Dictionary ID: 18347322;
+#description: djalbja;
+
+--- output chomp
+<?xml version='1.0' encoding="UTF-8"?>
+<TBX dialect="TBX-Min">
+	<header>
+		<id>18347322</id>
+		<creator>Francis Bond (2008)</creator>
+		<license>CC-by 3.0</license>
+		<directionality>monodirectional</directionality>
+		<description>djalbja</description>
+		<languages source="de" target="en-US"/>
+		<dateCreated>2013-12-20T17:00:45</dateCreated>
+	</header>
+	<body>
+	</body>
+</TBX>
+
+=== Test monodirectional
+--- utx chomp
+#UTX 1.11; de/en-US; 2013-12-20T17:00:45; copyright: Francis Bond (2008); license: CC-by 3.0; Dictionary ID: 18347322;
+#description: djalbja;
+
+--- output chomp
+<?xml version='1.0' encoding="UTF-8"?>
+<TBX dialect="TBX-Min">
+	<header>
+		<id>18347322</id>
+		<creator>Francis Bond (2008)</creator>
+		<license>CC-by 3.0</license>
+		<directionality>monodirectional</directionality>
+		<description>djalbja</description>
+		<languages source="de" target="en-US"/>
+		<dateCreated>2013-12-20T17:00:45</dateCreated>
+	</header>
+	<body>
+	</body>
+</TBX>
+
 === Body(Repeated concept ID should get changed in TBX)
 --- utx chomp
-#UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; bidirectional; Dictionary ID: TBX sample;
+#UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
 Hund	dog	noun	noun	approved	-	SAP	C002
@@ -53,7 +95,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 		<id>TBX sample</id>
 		<creator>Klaus-Dirk Schmidt</creator>
 		<license>CC BY license can be freely copied and modified</license>
-		<directionality>bidirectional</directionality>
+		<directionality>monodirectional</directionality>
 		<description>A short sample file demonstrating TBX-Min</description>
 		<languages source="de" target="en"/>
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
@@ -114,7 +156,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 
 === No_Concept_IDs
 --- utx chomp
-#UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; bidirectional; Dictionary ID: TBX sample;
+#UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer
 Hund	dog	noun	noun	approved	-	SAP
@@ -129,7 +171,7 @@ Katze	cat	noun	noun	-	-	SAP
 		<id>TBX sample</id>
 		<creator>Klaus-Dirk Schmidt</creator>
 		<license>CC BY license can be freely copied and modified</license>
-		<directionality>bidirectional</directionality>
+		<directionality>monodirectional</directionality>
 		<description>A short sample file demonstrating TBX-Min</description>
 		<languages source="de" target="en"/>
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
@@ -190,7 +232,7 @@ Katze	cat	noun	noun	-	-	SAP
 
 === Some_Concept_IDs
 --- utx chomp
-#UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; bidirectional; Dictionary ID: TBX sample;
+#UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
 Hund	dog	noun	noun	approved	-	SAP	C002
@@ -207,7 +249,7 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 		<id>TBX sample</id>
 		<creator>Klaus-Dirk Schmidt</creator>
 		<license>CC BY license can be freely copied and modified</license>
-		<directionality>bidirectional</directionality>
+		<directionality>monodirectional</directionality>
 		<description>A short sample file demonstrating TBX-Min</description>
 		<languages source="de" target="en"/>
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
@@ -282,6 +324,124 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Bar</term>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+			<langGroup xml:lang="en">
+				<termGroup>
+					<term>Foo</term>
+					<customer>Walmart</customer>
+					<note>Foobar</note>
+					<termStatus>preferred</termStatus>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+		</conceptEntry>
+	</body>
+</TBX>
+
+=== Test implied approved term status with bidirectional flag
+--- utx chomp
+#UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; bidirectional; Dictionary ID: TBX sample;
+#description: A short sample file demonstrating TBX-Min;
+#src	tgt	src:pos	tgt:pos	tgt:comment	customer	concept ID
+Hund	dog	noun	noun	-	SAP	C002
+Hund	hound	noun	noun	however bloodhound is used rather than blooddog	SAP	-
+Katze	cat	noun	noun	-	SAP	C008
+Foo	bar	noun	noun	-	-	-
+Bar	Foo	noun	noun	Foobar	Walmart	C001
+
+
+--- output chomp
+<?xml version='1.0' encoding="UTF-8"?>
+<TBX dialect="TBX-Min">
+	<header>
+		<id>TBX sample</id>
+		<creator>Klaus-Dirk Schmidt</creator>
+		<license>CC BY license can be freely copied and modified</license>
+		<directionality>bidirectional</directionality>
+		<description>A short sample file demonstrating TBX-Min</description>
+		<languages source="de" target="en"/>
+		<dateCreated>2013-12-20T17:00:45</dateCreated>
+	</header>
+	<body>
+		<conceptEntry id="C002">
+			<langGroup xml:lang="de">
+				<termGroup>
+					<term>Hund</term>
+					<termStatus>preferred</termStatus>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+			<langGroup xml:lang="en">
+				<termGroup>
+					<term>dog</term>
+					<customer>SAP</customer>
+					<note>-</note>
+					<termStatus>preferred</termStatus>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+		</conceptEntry>
+		<conceptEntry id="C003">
+			<langGroup xml:lang="de">
+				<termGroup>
+					<term>Hund</term>
+					<termStatus>preferred</termStatus>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+			<langGroup xml:lang="en">
+				<termGroup>
+					<term>hound</term>
+					<customer>SAP</customer>
+					<note>however bloodhound is used rather than blooddog</note>
+					<termStatus>preferred</termStatus>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+		</conceptEntry>
+		<conceptEntry id="C008">
+			<langGroup xml:lang="de">
+				<termGroup>
+					<term>Katze</term>
+					<termStatus>preferred</termStatus>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+			<langGroup xml:lang="en">
+				<termGroup>
+					<term>cat</term>
+					<customer>SAP</customer>
+					<note>-</note>
+					<termStatus>preferred</termStatus>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+		</conceptEntry>
+		<conceptEntry id="C004">
+			<langGroup xml:lang="de">
+				<termGroup>
+					<term>Foo</term>
+					<termStatus>preferred</termStatus>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+			<langGroup xml:lang="en">
+				<termGroup>
+					<term>bar</term>
+					<customer>-</customer>
+					<note>-</note>
+					<termStatus>preferred</termStatus>
+					<partOfSpeech>noun</partOfSpeech>
+				</termGroup>
+			</langGroup>
+		</conceptEntry>
+		<conceptEntry id="C001">
+			<langGroup xml:lang="de">
+				<termGroup>
+					<term>Bar</term>
+					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
