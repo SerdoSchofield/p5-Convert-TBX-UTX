@@ -36,7 +36,7 @@ __DATA__
 	</body>
 </TBX>
 
-=== Body
+=== Body(Repeated concept ID should get changed in TBX)
 --- utx chomp
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; bidirectional; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
@@ -76,7 +76,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 				</termGroup>
 			</langGroup>
 		</conceptEntry>
-			<conceptEntry id="C002">
+			<conceptEntry id="C001">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>

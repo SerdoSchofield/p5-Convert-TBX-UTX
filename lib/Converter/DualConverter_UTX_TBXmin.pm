@@ -180,21 +180,25 @@ sub _export_tbx {
 		$ID_Check->add_concept($concept);
 	}
 	
-	my (@concept_ids, $generated_ids);
+	my (%count_ids_one, %count_ids_two, @concept_ids, $generated_ids);
 	my $concept_list = $ID_Check->concepts;
 	foreach my $concept_value (@$concept_list) {
 		my $c_id = $concept_value->id;
 		if (defined $c_id){
+			$count_ids_one{$c_id}++;
 			for ($c_id) {s/C([0-9]+)/$1/i};
 			push (@concept_ids, $c_id);
 		}
 	}
 	
+	
+	
 	#~ @concept_ids = sort{ $a <=> $b } @concept_ids;
 	foreach my $concept_value (@$concept_list) {
 		my $c_id = $concept_value->id;
+		$count_ids_two{$c_id}++ if defined $c_id;
 		
-		if (defined $c_id == 0 or $c_id =~ /-/) {
+		if (defined $c_id == 0 or $c_id =~ /-/ or (defined $c_id && $count_ids_one{$c_id} > 1 && $count_ids_two{$c_id} > 1)) {
 			do  {$generated_ids++} until ("@concept_ids" !~ sprintf("%03d", $generated_ids));
 			push @concept_ids, $generated_ids;
 			$concept_value->id("C".sprintf("%03d", $generated_ids))
