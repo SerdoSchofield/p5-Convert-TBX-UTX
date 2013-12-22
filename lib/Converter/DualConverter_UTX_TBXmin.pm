@@ -4,6 +4,7 @@ package Converter::DualConverter_UTX_TBXmin;
 use strict;
 use warnings;
 use feature 'state';
+use feature 'say';
 use DateTime;
 use TBX::Min;
 use File::Slurp;
@@ -152,7 +153,7 @@ sub _export_tbx {
 		$concept = TBX::Min::ConceptEntry->new();
 		
 		if (keys(%hash) !~ /status$/ && $directionality eq 'bidirectional'){
-				$status_bidirectional = "preferred";
+				$status_bidirectional = 1;
 			}
 		
 		while(my ($key, $value) = each %hash){
@@ -168,16 +169,19 @@ sub _export_tbx {
 		}
 		while(my ($key, $value) = each %hash){
 			if ($key =~ /src/ && $key !~ /src$/){
-				($term_group_src, $lang_group_src) = _set_terms($key, $value, $term_group_src, $lang_group_src, $status_bidirectional);
+				($term_group_src) = _set_terms($key, $value, $term_group_src, $status_bidirectional);
 			}
 			elsif ($key =~ /tgt/ && $key !~ /tgt$/){
-				($term_group_tgt, $lang_group_tgt) = _set_terms($key, $value, $term_group_tgt, $lang_group_tgt, $status_bidirectional);
+				($term_group_tgt) = _set_terms($key, $value, $term_group_tgt, $status_bidirectional);
 			}
 			elsif ($key =~ /\bid\b/i){
 				$concept->id($value) if (defined $value);
 			}
+			elsif($key =~ /term status$/i){
+				($term_group_tgt, $term_group_src) = _set_terms($key, $value, $term_group_tgt, undef, $term_group_src);
+			}
 			elsif($key !~ /src|tgt/i){
-				($term_group_tgt, $lang_group_tgt) = _set_terms($key, $value, $term_group_tgt, $lang_group_tgt);
+				($term_group_tgt) = _set_terms($key, $value, $term_group_tgt);
 			}
 		}
 		
@@ -245,12 +249,13 @@ sub _export_utx {
 	$description = "description: ".$TBX->description if (defined $TBX->description);
 	$concepts = $TBX->concepts if (defined $TBX->concepts);
 	
-	my @output;
+	my (@output, @status_list);
 	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists) = 0;
 	
 	foreach my $concept (@$concepts){
 		my ($concept_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer);
-	
+		my ($value_count, $approved_count);
+		
 		if (defined $concept->id){
 			$concept_id = "\t".$concept->id;
 			$concept_id_exists = 1;
@@ -270,6 +275,7 @@ sub _export_utx {
 					
 					my $value = $term_group->part_of_speech;
 					(defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i) ? ($src_pos = $value) : ($src_pos = "-");
+					$src_pos = 'noun' if $src_pos eq 'properNoun';
 					
 					if (defined $term_group->note){
 						($src_note = "\t".$term_group->note);
@@ -281,6 +287,7 @@ sub _export_utx {
 					
 					my $value = $term_group->part_of_speech;
 					if (defined $value && $value =~ /noun|properNoun|verb|adjective|adverb|sentece/i){ #technically sentence should never exist in current TBX-Min
+						$value = 'noun' if $value =~ /properNoun/i;
 						$tgt_pos = "\t".$value;
 						$tgt_pos_exists = 1;
 					}
@@ -295,20 +302,34 @@ sub _export_utx {
 					($customer = "\t".$term_group->customer);
 					$customer_exists = 1;
 				}
-				if (defined $term_group->status){{
-					
+				
+				if (defined $term_group->status){
 					my $value = $term_group->status;
-					($value =~ /admitted|preferred|notRecommended|obsolete/i) ? ($status = $value) : next;
+					if ($value =~ /admitted|preferred|notRecommended|obsolete/i){
+						$value_count++;
+						$status = $value;
+						$status = "provisional" if $status =~ /admitted/;
+						$status = "non-standard" if $status =~ /notRecommended/;
+						$status = "forbidden" if $status =~ /obsolete/;
+						if ($status =~ /preferred/){
+							$approved_count++;
+							$status = "approved";
+						}
+					}else{
+						$value_count++;
+						$status = undef;
+					};
 					
-					$status = "provisional" if $status =~ /admitted/i;
-					$status = "approved" if $status =~ /preferred/i;
-					$status = "non-standard" if $status =~ /notRecommended/i;
-					$status = "forbidden" if $status =~ /obsolete/i;
-					
+					#~ push @status_list, $status;
 					$status = "\t".$status if defined $status;
 					$status_exists = 1;
-				}}
-				
+					
+				}
+				#in UTX file can only have 'bidirectional' flag if all terms are approved
+				$directionality = undef unless (defined $approved_count && defined $value_count && 
+											$approved_count == $value_count);
+											
+											
 				if (defined $src_term && defined $tgt_term){
 					my @output_line = ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $concept_id);
 					push @output, \@output_line;
@@ -323,28 +344,29 @@ sub _export_utx {
 } # end _export_utx
 
 sub _set_terms {  #used when exporting to TBX
-	my ($key, $value, $term_group, $lang_group, $status_bidirectional) = @_;
+	my ($key, $value, $term_group, $status_bidirectional, $source_term_group) = @_;
 	if ($key =~ /pos$/){
 		
 		$value = "other" if $value !~ /verb|adjective|adverb|noun/i;
 		
 		$term_group->part_of_speech($value);
 	}
-	elsif ($key =~ /status$/){{
+	elsif ($key =~ /status$/){
 		$value = "admitted" if $value =~ /provisional/i;
 		$value = "preferred" if $value =~ /approved/i;
 		$value = "notRecommended" if $value =~ /non-standard/i;
 		$value = "obsolete" if $value =~ /forbidden/i;
-		($value =~ /admitted|preferred|notRecommended|obsolete/i) ? $term_group->status($value) : next;
-	}}
+		$term_group->status($value) if ($value =~ /admitted|preferred|notRecommended|obsolete/i);
+		$source_term_group->status($value) if ($value =~ /preferred/i);
+	}
 	elsif ($key =~ /customer/i){
-		$term_group->customer($value);
+		$term_group->customer($value) unless $value eq '-';
 	}
 	else {
-		$term_group->note($value);
+		$term_group->note($value) unless $value eq '-';
 	}
-	$term_group->status($status_bidirectional) if defined $status_bidirectional; #UTX allows empty term status if bidirectionality flag is true
-	return ($term_group, $lang_group); #return to &_export_tbx;
+	$term_group->status('preferred') if defined $status_bidirectional; #UTX allows empty term status if bidirectionality flag is true
+	return ($term_group, $source_term_group); #return to &_export_tbx;
 } # end _set_terms
 
 sub _print_utx { #accepts $exists, and @output
@@ -360,17 +382,19 @@ sub _print_utx { #accepts $exists, and @output
 	$UTX .= " $timestamp;" if defined $timestamp;
 	$UTX .= " $creator;" if defined $creator;
 	$UTX .= " $license;" if defined $license;
-	$UTX .= " $directionality;" if defined $directionality;
+	$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/);
 	$UTX .= " $DictID;\n" if defined $DictID;
 	$UTX .= "#$description;\n" if (defined $description); #print middle of header if necessary
 	$UTX .= "#src	tgt	src:pos";  #print necessary values of final line of Header
 	
 	$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
-	$UTX .= "\tterm status" if ($status_exists);
-	$UTX .= "\tcustomer" if ($customer_exists);
+	$UTX .= "\tterm status" if ($status_exists && (defined $directionality == 0 or $directionality ne 'bidirectional'));
 	$UTX .= "\tsrc:comment" if ($src_note_exists);
 	$UTX .= "\ttgt:comment" if ($tgt_note_exists);
+	$UTX .= "\tcustomer" if ($customer_exists);
 	$UTX .= "\tconcept ID" if ($concept_id_exists);
+	
+	$status_exists = 0 if (defined $directionality && $directionality =~ /bidirectional/);
 	
 	foreach my $output_line_ref (@output) {
 				
