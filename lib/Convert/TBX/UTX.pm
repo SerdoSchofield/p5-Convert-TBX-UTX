@@ -11,7 +11,7 @@ use File::Slurp;
 use open ':encoding(utf8)', ':std';
 
 #converts utx to tbx
-sub convert_utx {
+sub utx2min {
 	my ($self, $data) = @_;
 	my @UTX = _import_utx($data);
 	my $TBX = _export_tbx(@UTX);
@@ -19,7 +19,7 @@ sub convert_utx {
 }
 
 #converts tbx to utx
-sub convert_tbx {
+sub min2utx {
 	my ($self, $data) = @_;
 	my @TBX = _import_tbx($data);
 	my $UTX = _export_utx(@TBX);
@@ -362,7 +362,7 @@ sub _set_terms {  #used when exporting to TBX
 	elsif ($key =~ /customer/i){
 		$term_group->customer($value) unless $value eq '-';
 	}
-	elsif ($key =~ /customer/i) {
+	elsif ($key =~ /comment/i) {
 		$term_group->note($value) unless $value eq '-';
 	}
 	$term_group->status('preferred') if defined $status_bidirectional; #UTX allows empty term status if bidirectionality flag is true
