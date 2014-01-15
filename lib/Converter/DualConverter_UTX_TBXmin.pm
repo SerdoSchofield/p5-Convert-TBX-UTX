@@ -1,6 +1,6 @@
 #!usr/bin/perl
 
-package Converter::DualConverter_UTX_TBXmin;
+package Convert::TBX::UTX;
 use strict;
 use warnings;
 use feature 'state';
@@ -362,7 +362,7 @@ sub _set_terms {  #used when exporting to TBX
 	elsif ($key =~ /customer/i){
 		$term_group->customer($value) unless $value eq '-';
 	}
-	else {
+	elsif ($key =~ /customer/i) {
 		$term_group->note($value) unless $value eq '-';
 	}
 	$term_group->status('preferred') if defined $status_bidirectional; #UTX allows empty term status if bidirectionality flag is true
