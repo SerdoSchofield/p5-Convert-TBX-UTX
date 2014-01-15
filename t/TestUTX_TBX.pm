@@ -9,7 +9,7 @@ package t::TestUTX_TBX::Filter;
 use Test::Base::Filter -base;
 use strict;
 use warnings;
-use Converter::DualConverter_UTX_TBXmin;
+use Convert::TBX::UTX;
 
 sub convert_utx {
 	my ($self, $data) = @_;
