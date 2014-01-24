@@ -14,20 +14,24 @@ our $VERSION = '0.01';
 
 #converts utx to tbx
 sub utx2min {
-	my ($self, $input) = @_;
+	my ($self, $input, $output) = @_;
 	my $data = _get_data($input);
 	my @UTX = _import_utx($data);
 	my $TBX = _export_tbx(@UTX);
-
+	
+	if (defined $output) { _print_converted($TBX, $output) };
+	
 	return $TBX;
 }
 
 #converts tbx to utx
 sub min2utx {
-	my ($input) = @_;
+	my ($self, $input, $output) = @_;
 	my $data = _get_data($input);
 	my @TBX = _import_tbx($data);
 	my $UTX = _export_utx(@TBX);
+	
+	if (defined $output) { _print_converted($UTX, $output) };
 	
 	return $UTX;
 }
@@ -37,7 +41,6 @@ sub _get_data {
 	open my $fh, '<', $input
 		or die "Error: $!";
 	my @data = <$fh>;
-	print "@data";
 	return "@data";
 }
 
@@ -70,9 +73,8 @@ sub _run {
 }
 
 sub _print_converted {
-	my $Converted = shift;
-	my $out = shift;
-	open my $fhout, '>', $out
+	my ($Converted, $output) = @_;
+	open my $fhout, '>', $output
 		or die "An error occured: $!";
 		
 	print $fhout $Converted;
