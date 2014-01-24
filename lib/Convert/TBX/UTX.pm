@@ -10,20 +10,38 @@ use TBX::Min;
 use File::Slurp;
 use open ':encoding(utf8)', ':std';
 
+our $VERSION = '0.01';
+
 #converts utx to tbx
 sub utx2min {
-	my ($self, $data) = @_;
+	my ($self, $input, $output) = @_;
+	my $data = _get_data($input);
 	my @UTX = _import_utx($data);
 	my $TBX = _export_tbx(@UTX);
+	
+	if (defined $output) { _print_converted($TBX, $output) };
+	
 	return $TBX;
 }
 
 #converts tbx to utx
 sub min2utx {
-	my ($self, $data) = @_;
+	my ($self, $input, $output) = @_;
+	my $data = _get_data($input);
 	my @TBX = _import_tbx($data);
 	my $UTX = _export_utx(@TBX);
+	
+	if (defined $output) { _print_converted($UTX, $output) };
+	
 	return $UTX;
+}
+
+sub _get_data {
+	my $input = shift;
+	open my $fh, '<', $input
+		or die "Error: $!";
+	my @data = <$fh>;
+	return "@data";
 }
 
 #private subroutines
@@ -51,7 +69,12 @@ sub _run {
 		
 	my $Converted = $export_type{$out}->($import_type{$in}->($data));
 	
-	open my $fhout, '>', $ARGV[2] 
+	_print_converted($Converted, $ARGV[2]);
+}
+
+sub _print_converted {
+	my ($Converted, $output) = @_;
+	open my $fhout, '>', $output
 		or die "An error occured: $!";
 		
 	print $fhout $Converted;
@@ -338,7 +361,7 @@ sub _export_utx {
 		}
 	}
 	
-	my $UTX = _print_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists,
+	my $UTX = _format_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists,
 					$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output]);
 	return $UTX;
 } # end _export_utx
@@ -369,7 +392,7 @@ sub _set_terms {  #used when exporting to TBX
 	return ($term_group, $source_term_group); #return to &_export_tbx;
 } # end _set_terms
 
-sub _print_utx { #accepts $exists, and @output
+sub _format_utx { #accepts $exists, and @output
 	my $args = shift;
 	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists,
 		$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output) = @$args;

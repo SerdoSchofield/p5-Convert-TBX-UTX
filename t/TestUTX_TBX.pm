@@ -13,13 +13,13 @@ use Convert::TBX::UTX;
 
 sub convert_utx {
 	my ($self, $data) = @_;
-	my $converted = Convert::TBX::UTX->utx2min($data);
+	my $converted = Convert::TBX::UTX->utx2min(\$data);
 	$converted;
 }
 
 sub convert_tbx {
 	my ($self, $data) = @_;
-	my $converted = Convert::TBX::UTX->min2utx($data);
+	my $converted = Convert::TBX::UTX->min2utx(\$data);
 	return $converted;
 }
 
