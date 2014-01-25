@@ -17,6 +17,7 @@ sub utx2min {
 	my ($self, $input, $output) = @_;
 	my $data = _get_data($input);
 	my @UTX = _import_utx($data);
+	print "@UTX";
 	my $TBX = _export_tbx(@UTX);
 	
 	if (defined $output) { _print_converted($TBX, $output) };
@@ -38,9 +39,9 @@ sub min2utx {
 
 sub _get_data {
 	my $input = shift;
-	open my $fh, '<', $input
+	open my $fhtemp, '<', $input
 		or die "Error: $!";
-	my @data = <$fh>;
+	my @data = <$fhtemp>;
 	return "@data";
 }
 
@@ -48,14 +49,14 @@ sub _get_data {
 sub _run {
 	my ($in, $out, $die_message);
 
-	$die_message = "\nExample (TBX-Min to UTX): DualConverter_UTX_TBXmin.pm --tbx Input.tbx Output.utx\n"
-		."Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pm --utx Input.utx Output.tbx\n\n";
+	$die_message = "\nExample (TBX-Min to UTX): UTX.pm --tbx2utx Input.tbx Output.utx\n"
+		."Example (UTX to TBX-Min): UTX.pm --utx2tbx Input.utx Output.tbx\n\n";
 
-	@ARGV == 3 or die "usage: DualConverter_UTX_TBXmin.pm <--utx or --tbx (input file type)> <input_path> <output_path>\n".$die_message;
+	@ARGV == 3 or die "usage: UTX.pm <--utx or --tbx2utx (conversion direction)> <input_path> <output_path>\n".$die_message;
 
 	my $data = read_file($ARGV[1]);
 	
-	$in = lc $1 if ($ARGV[0] =~ /--(tbx|utx)/i);
+	$in = lc $1 if ($ARGV[0] =~ /--(tbx2utx|utx2tbx)/i);
 	($in =~ /tbx/i) ? ($out = 'utx') : ($out = 'tbx');
 
 	my %import_type = (
