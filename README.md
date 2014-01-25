@@ -11,11 +11,11 @@ Usage:
 ======
 ***Required Modules: TBX::Min, DateTime***
 
-*~$ perl (Converter Name) (--tbx or --utx depending on Input type) (Input) (Output)*
+*~$ perl (Converter Name) (--tbx2utx or --utx2tbx depending on the conversion direction) (Input) (Output)*
 
 
 
 
-Example (TBX-Min to UTX): DualConverter_UTX_TBXmin.pm --tbx Input.tbx Output.utx
+Example (TBX-Min to UTX): UTX.pm --tbx2utx Input.tbx Output.utx
 
-Example (UTX to TBX-Min): DualConverter_UTX_TBXmin.pm --utx Input.utx Output.tbx
+Example (UTX to TBX-Min): UTX.pm --utx2tbx Input.utx Output.tbx
