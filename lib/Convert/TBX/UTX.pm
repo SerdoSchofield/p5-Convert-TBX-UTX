@@ -72,16 +72,9 @@ sub _run {
 		tbx2utx => \&min2utx,
 		utx2tbx => \&utx2min
 	);
-# 	my %export_type = (
-# 		tbx => \&_export_tbx,
-# 		utx => \&_export_utx
-# 	);
 
 	$import_type{$in}->($ARGV[1], $ARGV[2]);
 		
-# 	my $Converted = $export_type{$out}->($import_type{$in}->($data));
-# 	
-# 	_print_converted($Converted, $ARGV[2]);
 }
 
 sub _print_converted {
@@ -239,9 +232,6 @@ sub _export_tbx {
 		}
 	}
 	
-	
-	
-	#~ @entry_ids = sort{ $a <=> $b } @entry_ids;
 	foreach my $entry_value (@$entry_list) {
 		my $c_id = $entry_value->id;
 		$count_ids_two{$c_id}++ if defined $c_id;
