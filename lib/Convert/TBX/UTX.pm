@@ -218,7 +218,7 @@ sub _export_tbx {
 		}
 		$entry->subject_field($subject);
 		
-		$ID_Check->add_concept($entry);
+		$ID_Check->add_entry($entry);
 	}
 	
 	my (%count_ids_one, %count_ids_two, @entry_ids, $generated_ids);
@@ -241,11 +241,12 @@ sub _export_tbx {
 			push @entry_ids, $generated_ids;
 			$entry_value->id("C".sprintf("%03d", $generated_ids))
 		}
-		$TBX->add_concept($entry_value);
+		$TBX->add_entry($entry_value);
 	}	
 	
-	my $TBXstring .= "<?xml version='1.0' encoding=\"UTF-8\"?>\n".$TBX->as_xml;
-	return $TBXstring;
+	my $TBX_ref = $TBX->as_xml;
+	my $TBXstring .= "<?xml version='1.0' encoding=\"UTF-8\"?>\n".$$TBX_ref;  #as_xml returns a string ref
+	return $TBXstring; #returns a string
 } #end export_tbx
 
 sub _export_utx {
