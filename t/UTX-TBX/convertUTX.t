@@ -7,7 +7,6 @@ plan tests => 1*blocks();
 
 filters {
 	utx => 'convert_utx',
-	output => '_format_out_tbx'
 };
 
 for my $block(blocks()){
@@ -101,7 +100,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -117,8 +116,8 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-			<conceptEntry id="C001">
+		</entry>
+			<entry id="C001">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -133,8 +132,8 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Katze</term>
@@ -148,7 +147,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -176,7 +175,7 @@ Katze	cat	noun	noun	-	-	SAP
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<conceptEntry id="C001">
+		<entry id="C001">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -192,8 +191,8 @@ Katze	cat	noun	noun	-	-	SAP
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-			<conceptEntry id="C002">
+		</entry>
+			<entry id="C002">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -208,8 +207,8 @@ Katze	cat	noun	noun	-	-	SAP
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C003">
+		</entry>
+		<entry id="C003">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Katze</term>
@@ -223,7 +222,7 @@ Katze	cat	noun	noun	-	-	SAP
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -253,7 +252,7 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -269,8 +268,8 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C003">
+		</entry>
+		<entry id="C003">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -285,8 +284,8 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C008">
+		</entry>
+		<entry id="C008">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Katze</term>
@@ -300,8 +299,8 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C004">
+		</entry>
+		<entry id="C004">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Foo</term>
@@ -314,8 +313,8 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C001">
+		</entry>
+		<entry id="C001">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Bar</term>
@@ -332,7 +331,7 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -361,7 +360,7 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -377,8 +376,8 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C003">
+		</entry>
+		<entry id="C003">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -395,8 +394,8 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C008">
+		</entry>
+		<entry id="C008">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Katze</term>
@@ -412,8 +411,8 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C004">
+		</entry>
+		<entry id="C004">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Foo</term>
@@ -428,8 +427,8 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C001">
+		</entry>
+		<entry id="C001">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Bar</term>
@@ -446,7 +445,7 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -477,7 +476,7 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -491,8 +490,8 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C003">
+		</entry>
+		<entry id="C003">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -507,8 +506,8 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C008">
+		</entry>
+		<entry id="C008">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Katze</term>
@@ -522,8 +521,8 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C004">
+		</entry>
+		<entry id="C004">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Foo</term>
@@ -536,8 +535,8 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="C001">
+		</entry>
+		<entry id="C001">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Bar</term>
@@ -552,7 +551,7 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -579,7 +578,7 @@ Katze	cat	noun	noun	-	CUSTOM NOTE	SAP	c008
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -595,8 +594,8 @@ Katze	cat	noun	noun	-	CUSTOM NOTE	SAP	c008
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-			<conceptEntry id="C001">
+		</entry>
+			<entry id="C001">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Hund</term>
@@ -610,8 +609,8 @@ Katze	cat	noun	noun	-	CUSTOM NOTE	SAP	c008
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 			<langGroup xml:lang="de">
 				<termGroup>
 					<term>Katze</term>
@@ -625,6 +624,6 @@ Katze	cat	noun	noun	-	CUSTOM NOTE	SAP	c008
 					<partOfSpeech>noun</partOfSpeech>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>

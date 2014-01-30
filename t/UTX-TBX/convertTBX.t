@@ -7,7 +7,6 @@ plan tests => 1*blocks();
 
 filters {
 	tbx => 'convert_tbx',
-	output => '_format_out_utx'
 };
 
 for my $block(blocks()){
@@ -53,7 +52,7 @@ __DATA__
 		<license>CC BY license can be freely copied and modified</license>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -76,8 +75,8 @@ __DATA__
 					<note>however bloodhound is used rather than blooddog</note>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -92,7 +91,7 @@ __DATA__
 					<customer>SAP</customer>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -118,7 +117,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 		<license>CC BY license can be freely copied and modified</license>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -141,8 +140,8 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<note>however bloodhound is used rather than blooddog</note>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -157,7 +156,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<customer>SAP</customer>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -184,7 +183,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 		<license>CC BY license can be freely copied and modified</license>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -207,8 +206,8 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<note>however bloodhound is used rather than blooddog</note>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -223,7 +222,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<customer>SAP</customer>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -252,7 +251,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 		<license>CC BY license can be freely copied and modified</license>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -276,8 +275,8 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<note>however bloodhound is used rather than blooddog</note>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -294,7 +293,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<customer>SAP</customer>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 

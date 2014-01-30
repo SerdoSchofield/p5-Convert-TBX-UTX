@@ -7,42 +7,62 @@ use feature 'state';
 use feature 'say';
 use DateTime;
 use TBX::Min;
-use File::Slurp;
-use open ':encoding(utf8)', ':std';
+use Path::Tiny;
+use Exporter::Easy (
+	OK => [ 'utx2min', 'min2utx' ]
+	);
+# use open ':encoding(utf8)', ':std';
 
-our $VERSION = '0.01';
+our $VERSION = '0.0';
 
 #converts utx to tbx
 sub utx2min {
-	my ($self, $input, $output) = @_;
-	my $data = _get_data($input);
-	my @UTX = _import_utx($data);
-	print "@UTX";
-	my $TBX = _export_tbx(@UTX);
+	my ($fh, $TBX);
+	my ($input, $output) = @_;
+	$fh = _get_handle($input);
+	
+	$TBX = _import_utx($fh);
 	
 	if (defined $output) { _print_converted($TBX, $output) };
-	
 	return $TBX;
 }
 
 #converts tbx to utx
 sub min2utx {
-	my ($self, $input, $output) = @_;
-	my $data = _get_data($input);
-	my @TBX = _import_tbx($data);
-	my $UTX = _export_utx(@TBX);
+	my ($fh, $UTX);
+	my ($input, $output) = @_;
+	$fh = _get_handle($input);
+	
+	$UTX = _import_tbx($fh);
 	
 	if (defined $output) { _print_converted($UTX, $output) };
 	
 	return $UTX;
 }
 
-sub _get_data {
-	my $input = shift;
-	open my $fhtemp, '<', $input
-		or die "Error: $!";
-	my @data = <$fhtemp>;
-	return "@data";
+sub _get_handle {
+    my ($input) = @_;
+
+    my $fh;
+
+    if((ref $input) eq 'SCALAR'){
+
+        open $fh, '<', $input; ## no critic(RequireBriefOpen)
+
+    }else{
+
+		$fh = path($input)->filehandle('<');
+        
+#         print $test;
+
+    }
+    return $fh;
+    
+# 	my $input = shift;
+# 	open my $fhtemp, '<', $input
+# 		or die "Error: $!";
+# 	my @data = <$fhtemp>;
+# 	return "@data";
 }
 
 #private subroutines
@@ -52,25 +72,29 @@ sub _run {
 	$die_message = "\nExample (TBX-Min to UTX): UTX.pm --tbx2utx Input.tbx Output.utx\n"
 		."Example (UTX to TBX-Min): UTX.pm --utx2tbx Input.utx Output.tbx\n\n";
 
-	@ARGV == 3 or die "usage: UTX.pm <--utx or --tbx2utx (conversion direction)> <input_path> <output_path>\n".$die_message;
+	@ARGV == 3 or die "usage: UTX.pm <--utx2tbx or --tbx2utx (conversion direction)> <input_path> <output_path>\n".$die_message;
 
-	my $data = read_file($ARGV[1]);
+# 	my $data = read_file($ARGV[1]);
 	
-	$in = lc $1 if ($ARGV[0] =~ /--(tbx2utx|utx2tbx)/i);
-	($in =~ /tbx/i) ? ($out = 'utx') : ($out = 'tbx');
+	if ($ARGV[0] =~ /--(tbx2utx|utx2tbx)/i){
+		$in = lc $1 ;
+		($in =~ /tbx2utx/i) ? ($out = 'utx2tbx') : ($out = 'tbx');
+	}else{ die "usage: UTX.pm <--utx2tbx or --tbx2utx (conversion direction)> <input_path> <output_path>\n".$die_message; }
 
 	my %import_type = (
-		tbx => \&_import_tbx,
-		utx => \&_import_utx
+		tbx2utx => \&min2utx,
+		utx2tbx => \&utx2min
 	);
-	my %export_type = (
-		tbx => \&_export_tbx,
-		utx => \&_export_utx
-	);
+# 	my %export_type = (
+# 		tbx => \&_export_tbx,
+# 		utx => \&_export_utx
+# 	);
+
+	$import_type{$in}->($ARGV[1], $ARGV[2]);
 		
-	my $Converted = $export_type{$out}->($import_type{$in}->($data));
-	
-	_print_converted($Converted, $ARGV[2]);
+# 	my $Converted = $export_type{$out}->($import_type{$in}->($data));
+# 	
+# 	_print_converted($Converted, $ARGV[2]);
 }
 
 sub _print_converted {
@@ -82,14 +106,17 @@ sub _print_converted {
 }
 
 sub _import_tbx {  #really only checks for validity of TBX file
-	my $data = shift;
-	die "Not a TBX-Min file" unless ($data =~ /tbx-min/i);
-	return $data;
+	my $fh = shift;
+	my @data = <$fh>;
+	print "@data";
+	die "Not a TBX-Min file" unless ("@data" =~ /tbx-min/i);
+	_export_utx(@data);
+# 	return @data;
 }
 
 sub _import_utx {
-	my $data = shift;
-	open my $fhin, '<', \$data;
+	my $fhin = shift;
+# 	open my $fhin, '<', \$data;
 	my ($linein, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record, @field_name);
 
 	# header lines
@@ -149,7 +176,8 @@ sub _import_utx {
 	}
 	$id = '-' if defined $id ==0;
 	
-	return [$data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record];
+	_export_tbx([$fhin, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record]);
+# 	return [$data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record];
 
 } # end import_utx
 
@@ -172,9 +200,9 @@ sub _export_tbx {
 
 	#	This goes through each 
 	foreach my $hash_ref (@record) {
-		my ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $concept, $status_bidirectional, @redo);
+		my ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $entry, $status_bidirectional, @redo);
 		my %hash = %$hash_ref;
-		$concept = TBX::Min::ConceptEntry->new();
+		$entry = TBX::Min::Entry->new();
 		
 		if (keys(%hash) !~ /status$/ && $directionality eq 'bidirectional'){
 				$status_bidirectional = 1;
@@ -199,7 +227,7 @@ sub _export_tbx {
 				($term_group_tgt) = _set_terms($key, $value, $term_group_tgt, $status_bidirectional);
 			}
 			elsif ($key =~ /\bid\b/i){
-				$concept->id($value) if (defined $value);
+				$entry->id($value) if (defined $value);
 			}
 			elsif($key =~ /term status$/i){
 				($term_group_tgt, $term_group_src) = _set_terms($key, $value, $term_group_tgt, undef, $term_group_src);
@@ -211,44 +239,43 @@ sub _export_tbx {
 		
 		if (defined $term_group_src){
 			$lang_group_src->add_term_group($term_group_src);
-			$concept->add_lang_group($lang_group_src);
+			$entry->add_lang_group($lang_group_src);
 		}
 		if (defined $term_group_tgt){
 			$lang_group_tgt->add_term_group($term_group_tgt);
-			$concept->add_lang_group($lang_group_tgt);
+			$entry->add_lang_group($lang_group_tgt);
 		}
-		$concept->subject_field($subject);
+		$entry->subject_field($subject);
 		
-		$ID_Check->add_concept($concept);
+		$ID_Check->add_concept($entry);
 	}
 	
-	my (%count_ids_one, %count_ids_two, @concept_ids, $generated_ids);
-	my $concept_list = $ID_Check->concepts;
-	foreach my $concept_value (@$concept_list) {
-		my $c_id = $concept_value->id;
+	my (%count_ids_one, %count_ids_two, @entry_ids, $generated_ids);
+	my $entry_list = $ID_Check->entries;
+	foreach my $entry_value (@$entry_list) {
+		my $c_id = $entry_value->id;
 		if (defined $c_id){
 			$count_ids_one{$c_id}++;
 			for ($c_id) {s/C([0-9]+)/$1/i};
-			push (@concept_ids, $c_id);
+			push (@entry_ids, $c_id);
 		}
 	}
 	
 	
 	
-	#~ @concept_ids = sort{ $a <=> $b } @concept_ids;
-	foreach my $concept_value (@$concept_list) {
-		my $c_id = $concept_value->id;
+	#~ @entry_ids = sort{ $a <=> $b } @entry_ids;
+	foreach my $entry_value (@$entry_list) {
+		my $c_id = $entry_value->id;
 		$count_ids_two{$c_id}++ if defined $c_id;
 		
 		if (defined $c_id == 0 or $c_id =~ /-/ or (defined $c_id && $count_ids_one{$c_id} > 1 && $count_ids_two{$c_id} > 1)) {
-			do  {$generated_ids++} until ("@concept_ids" !~ sprintf("%03d", $generated_ids));
-			push @concept_ids, $generated_ids;
-			$concept_value->id("C".sprintf("%03d", $generated_ids))
+			do  {$generated_ids++} until ("@entry_ids" !~ sprintf("%03d", $generated_ids));
+			push @entry_ids, $generated_ids;
+			$entry_value->id("C".sprintf("%03d", $generated_ids))
 		}
-		$TBX->add_concept($concept_value);
+		$TBX->add_concept($entry_value);
 	}	
 	
-	#~ print OUT $TBX->as_xml;
 	my $TBXstring .= "<?xml version='1.0' encoding=\"UTF-8\"?>\n".$TBX->as_xml;
 	return $TBXstring;
 } #end export_tbx
@@ -257,7 +284,7 @@ sub _export_utx {
 	my $data = shift;
 	my $TBX = TBX::Min->new_from_xml(\$data);
 	my ($source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, 
-		$description, $concepts); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
+		$description, $entries); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
 	#note that in UTX 1.11, $source_lang, $target_lang,$creator, and $license are required
 	
 	#~ my $timestamp = DateTime->now()->iso8601();   #this was used to generate timestamp at time of conversion rather than read in the old one
@@ -271,20 +298,20 @@ sub _export_utx {
 	$directionality = $TBX->directionality if (defined $TBX->directionality);
 	$DictID = "Dictionary ID: ".$TBX->id if (defined $TBX->id);
 	$description = "description: ".$TBX->description if (defined $TBX->description);
-	$concepts = $TBX->concepts if (defined $TBX->concepts);
+	$entries = $TBX->entries if (defined $TBX->entries);
 	
 	my (@output, @status_list);
-	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists) = 0;
+	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $entry_id_exists) = 0;
 	
-	foreach my $concept (@$concepts){
-		my ($concept_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer);
+	foreach my $entry (@$entries){
+		my ($entry_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer);
 		my ($value_count, $approved_count);
 		
-		if (defined $concept->id){
-			$concept_id = "\t".$concept->id;
-			$concept_id_exists = 1;
+		if (defined $entry->id){
+			$entry_id = "\t".$entry->id;
+			$entry_id_exists = 1;
 		}
-		$lang_groups = $concept->lang_groups;
+		$lang_groups = $entry->lang_groups;
 		
 		foreach my $lang_group (@$lang_groups){
 			my $term_groups = $lang_group->term_groups;
@@ -355,14 +382,14 @@ sub _export_utx {
 											
 											
 				if (defined $src_term && defined $tgt_term){
-					my @output_line = ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $concept_id);
+					my @output_line = ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id);
 					push @output, \@output_line;
 				}
 			}
 		}
 	}
 	
-	my $UTX = _format_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists,
+	my $UTX = _format_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $entry_id_exists,
 					$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output]);
 	return $UTX;
 } # end _export_utx
@@ -395,7 +422,7 @@ sub _set_terms {  #used when exporting to TBX
 
 sub _format_utx { #accepts $exists, and @output
 	my $args = shift;
-	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $concept_id_exists,
+	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $entry_id_exists,
 		$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output) = @$args;
 	my $UTX;
 	
@@ -416,13 +443,13 @@ sub _format_utx { #accepts $exists, and @output
 	$UTX .= "\tsrc:comment" if ($src_note_exists);
 	$UTX .= "\ttgt:comment" if ($tgt_note_exists);
 	$UTX .= "\tcustomer" if ($customer_exists);
-	$UTX .= "\tconcept ID" if ($concept_id_exists);
+	$UTX .= "\tentry ID" if ($entry_id_exists);
 	
 	$status_exists = 0 if (defined $directionality && $directionality =~ /bidirectional/);
 	
 	foreach my $output_line_ref (@output) {
 				
-		my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $concept_id) = @$output_line_ref;
+		my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id) = @$output_line_ref;
 		
 		if (defined $src_term && defined $tgt_term){
 			$UTX .= "\n$src_term$tgt_term$src_pos";
@@ -432,10 +459,10 @@ sub _format_utx { #accepts $exists, and @output
 			if ($src_note_exists){ (defined $src_note) ? ($UTX .= "$src_note") : ($UTX .= "\t-") }
 			if ($tgt_note_exists){ (defined $tgt_note) ? ($UTX .= "$tgt_note") : ($UTX .= "\t-") }
 			if ($customer_exists){ (defined $customer) ? ($UTX .= "$customer") : ($UTX .= "\t-") }
-			if ($concept_id_exists){ (defined $concept_id) ? ($UTX .= "$concept_id") : ($UTX .= "\t-") }
+			if ($entry_id_exists){ (defined $entry_id) ? ($UTX .= "$entry_id") : ($UTX .= "\t-") }
 		}
 	}
-	#~ print OUT $UTX;
+	
 	return $UTX;
 } #end _print_utx
 
