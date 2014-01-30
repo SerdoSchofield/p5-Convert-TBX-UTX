@@ -2,6 +2,6 @@
 
 use strict;
 use warnings;
-use Convert::TBX::UTX 'utx2min';
+use Convert::TBX::UTX qw(utx2min);
 
-Convert::TBX::UTX->min2utx(@ARGV);
+utx2min(@ARGV);
