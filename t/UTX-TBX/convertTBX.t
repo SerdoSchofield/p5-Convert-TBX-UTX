@@ -7,7 +7,6 @@ plan tests => 1*blocks();
 
 filters {
 	tbx => 'convert_tbx',
-	output => '_format_out_utx'
 };
 
 for my $block(blocks()){
@@ -53,7 +52,7 @@ __DATA__
 		<license>CC BY license can be freely copied and modified</license>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -70,14 +69,14 @@ __DATA__
 				</termGroup>
 				<termGroup>
 					<term>hound</term>
-					<termStatus>deprecated</termStatus>
+					<termStatus>notRecommended</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 					<customer>SAP</customer>
 					<note>however bloodhound is used rather than blooddog</note>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -92,7 +91,7 @@ __DATA__
 					<customer>SAP</customer>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -101,7 +100,7 @@ __DATA__
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
 Hund	dog	noun	noun	approved	-	SAP	C002
-Hund	hound	noun	noun	-	however bloodhound is used rather than blooddog	SAP	C002
+Hund	hound	noun	noun	non-standard	however bloodhound is used rather than blooddog	SAP	C002
 Katze	cat	noun	noun	-	-	SAP	c008
 
 === test UTX conformant conversion of properNoun to noun
@@ -118,7 +117,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 		<license>CC BY license can be freely copied and modified</license>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -135,14 +134,14 @@ Katze	cat	noun	noun	-	-	SAP	c008
 				</termGroup>
 				<termGroup>
 					<term>hound</term>
-					<termStatus>deprecated</termStatus>
+					<termStatus>notRecommended</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 					<customer>SAP</customer>
 					<note>however bloodhound is used rather than blooddog</note>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -157,7 +156,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<customer>SAP</customer>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -166,7 +165,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
 Hund	dog	noun	noun	approved	-	SAP	C002
-Hund	hound	noun	noun	-	however bloodhound is used rather than blooddog	SAP	C002
+Hund	hound	noun	noun	non-standard	however bloodhound is used rather than blooddog	SAP	C002
 Katze	cat	noun	noun	-	-	SAP	c008
 
 
@@ -184,7 +183,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 		<license>CC BY license can be freely copied and modified</license>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -207,8 +206,8 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<note>however bloodhound is used rather than blooddog</note>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -223,7 +222,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<customer>SAP</customer>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 
@@ -252,7 +251,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 		<license>CC BY license can be freely copied and modified</license>
 	</header>
 	<body>
-		<conceptEntry id="C002">
+		<entry id="C002">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -276,8 +275,8 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<note>however bloodhound is used rather than blooddog</note>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
-		<conceptEntry id="c008">
+		</entry>
+		<entry id="c008">
 		<subjectField>biology</subjectField>
 			<langGroup xml:lang="de">
 				<termGroup>
@@ -294,7 +293,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 					<customer>SAP</customer>
 				</termGroup>
 			</langGroup>
-		</conceptEntry>
+		</entry>
 	</body>
 </TBX>
 

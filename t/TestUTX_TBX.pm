@@ -9,26 +9,16 @@ package t::TestUTX_TBX::Filter;
 use Test::Base::Filter -base;
 use strict;
 use warnings;
-use Convert::TBX::UTX;
+use Convert::TBX::UTX qw(utx2min min2utx);
 
 sub convert_utx {
 	my ($self, $data) = @_;
-	my $converted = Convert::TBX::UTX->utx2min($data);
-	$converted;
+	my $converted = utx2min(\$data);
+	return $converted;
 }
 
 sub convert_tbx {
 	my ($self, $data) = @_;
-	my $converted = Convert::TBX::UTX->min2utx($data);
+	my $converted = min2utx(\$data);
 	return $converted;
-}
-
-sub _format_out_tbx {
-	my ($self, $data) = @_;
-	return $data;
-}
-
-sub _format_out_utx {
-	my ($self, $data) = @_;
-	return $data;
 }
