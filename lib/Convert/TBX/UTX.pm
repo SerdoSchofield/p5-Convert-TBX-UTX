@@ -11,7 +11,6 @@ use Path::Tiny;
 use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
 	);
-# use open ':encoding(utf8)', ':std';
 
 our $VERSION = '0.0';
 
@@ -29,12 +28,9 @@ sub utx2min {
 
 #converts tbx to utx
 sub min2utx {
-	my ($fh, $UTX);
+	my ($fh, $data, $UTX);
 	my ($input, $output) = @_;
-	$fh = _get_handle($input);
-	
-	$UTX = _import_tbx($fh);
-	
+	$UTX = _export_utx($input);
 	if (defined $output) { _print_converted($UTX, $output) };
 	
 	return $UTX;
@@ -53,16 +49,9 @@ sub _get_handle {
 
 		$fh = path($input)->filehandle('<');
         
-#         print $test;
 
     }
     return $fh;
-    
-# 	my $input = shift;
-# 	open my $fhtemp, '<', $input
-# 		or die "Error: $!";
-# 	my @data = <$fhtemp>;
-# 	return "@data";
 }
 
 #private subroutines
@@ -73,8 +62,6 @@ sub _run {
 		."Example (UTX to TBX-Min): UTX.pm --utx2tbx Input.utx Output.tbx\n\n";
 
 	@ARGV == 3 or die "usage: UTX.pm <--utx2tbx or --tbx2utx (conversion direction)> <input_path> <output_path>\n".$die_message;
-
-# 	my $data = read_file($ARGV[1]);
 	
 	if ($ARGV[0] =~ /--(tbx2utx|utx2tbx)/i){
 		$in = lc $1 ;
@@ -103,15 +90,6 @@ sub _print_converted {
 		or die "An error occured: $!";
 		
 	print $fhout $Converted;
-}
-
-sub _import_tbx {  #really only checks for validity of TBX file
-	my $fh = shift;
-	my @data = <$fh>;
-	print "@data";
-	die "Not a TBX-Min file" unless ("@data" =~ /tbx-min/i);
-	_export_utx(@data);
-# 	return @data;
 }
 
 sub _import_utx {
@@ -185,7 +163,7 @@ sub _export_tbx {
 	my $glossary = shift;
 	my ($data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
 
-	#~ my $timestamp = DateTime->now()->iso8601();
+	#~ my $timestamp = DateTime->now()->iso8601();  #only use if desired timestamp is time of conversion rather than the timestamp included on the file being converted
 
 	my $ID_Check = TBX::Min->new();
 	my $TBX = TBX::Min->new();
@@ -281,8 +259,8 @@ sub _export_tbx {
 } #end export_tbx
 
 sub _export_utx {
-	my $data = shift;
-	my $TBX = TBX::Min->new_from_xml(\$data);
+	my $fh = shift;
+	my $TBX = TBX::Min->new_from_xml($fh);
 	my ($source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, 
 		$description, $entries); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
 	#note that in UTX 1.11, $source_lang, $target_lang,$creator, and $license are required
@@ -443,7 +421,7 @@ sub _format_utx { #accepts $exists, and @output
 	$UTX .= "\tsrc:comment" if ($src_note_exists);
 	$UTX .= "\ttgt:comment" if ($tgt_note_exists);
 	$UTX .= "\tcustomer" if ($customer_exists);
-	$UTX .= "\tentry ID" if ($entry_id_exists);
+	$UTX .= "\tconcept ID" if ($entry_id_exists);
 	
 	$status_exists = 0 if (defined $directionality && $directionality =~ /bidirectional/);
 	

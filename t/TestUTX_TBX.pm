@@ -12,13 +12,13 @@ use warnings;
 use Convert::TBX::UTX qw(utx2min min2utx);
 
 sub convert_utx {
-	my ($data) = @_;
+	my ($self, $data) = @_;
 	my $converted = utx2min(\$data);
-	$converted;
+	return $converted;
 }
 
 sub convert_tbx {
-	my ($data) = @_;
+	my ($self, $data) = @_;
 	my $converted = min2utx(\$data);
 	return $converted;
 }

@@ -69,7 +69,7 @@ __DATA__
 				</termGroup>
 				<termGroup>
 					<term>hound</term>
-					<termStatus>deprecated</termStatus>
+					<termStatus>notRecommended</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 					<customer>SAP</customer>
 					<note>however bloodhound is used rather than blooddog</note>
@@ -100,7 +100,7 @@ __DATA__
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
 Hund	dog	noun	noun	approved	-	SAP	C002
-Hund	hound	noun	noun	-	however bloodhound is used rather than blooddog	SAP	C002
+Hund	hound	noun	noun	non-standard	however bloodhound is used rather than blooddog	SAP	C002
 Katze	cat	noun	noun	-	-	SAP	c008
 
 === test UTX conformant conversion of properNoun to noun
@@ -134,7 +134,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 				</termGroup>
 				<termGroup>
 					<term>hound</term>
-					<termStatus>deprecated</termStatus>
+					<termStatus>notRecommended</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 					<customer>SAP</customer>
 					<note>however bloodhound is used rather than blooddog</note>
@@ -165,7 +165,7 @@ Katze	cat	noun	noun	-	-	SAP	c008
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
 Hund	dog	noun	noun	approved	-	SAP	C002
-Hund	hound	noun	noun	-	however bloodhound is used rather than blooddog	SAP	C002
+Hund	hound	noun	noun	non-standard	however bloodhound is used rather than blooddog	SAP	C002
 Katze	cat	noun	noun	-	-	SAP	c008
 
 
