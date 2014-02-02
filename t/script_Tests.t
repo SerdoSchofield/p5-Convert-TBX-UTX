@@ -16,7 +16,7 @@ my $tbx_datafile = path("$Bin/corpus/Sample.tbx");
 
 my $outfile = path("$Bin/corpus", "Output.test");
 
-system(qq{$^X -Ilib $utx2tbx $utx_datafile $outfile});
+system(qq{"$^X" -Ilib "$utx2tbx" "$utx_datafile" "$outfile"});
 
 if ( path("$Bin/corpus/Output.test")->exists ) {
 	say "utx2tbxmin script conversion SUCCESS.";
@@ -25,7 +25,7 @@ if ( path("$Bin/corpus/Output.test")->exists ) {
 	say "utx2tbxmin script conversion FAILURE.";
 }
 
-system(qq{$^X -Ilib $tbx2utx $tbx_datafile $outfile});
+system(qq{"$^X" -Ilib "$tbx2utx" "$tbx_datafile" "$outfile"});
 
 if ( path("$Bin/corpus/Output.test")->exists ) {
 	say "tbxmin2utx script conversion SUCCESS.";
