@@ -12,7 +12,7 @@ use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
 	);
 
-our $VERSION = '0.0';
+our $VERSION = '0.01';
 
 #converts utx to tbx
 sub utx2min {
@@ -48,8 +48,7 @@ sub _get_handle {
     }else{
 
 		$fh = path($input)->filehandle('<');
-        
-
+     
     }
     return $fh;
 }
