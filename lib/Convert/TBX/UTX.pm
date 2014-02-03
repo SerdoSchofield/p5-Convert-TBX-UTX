@@ -6,7 +6,7 @@ use warnings;
 use feature 'state';
 use feature 'say';
 use DateTime;
-use TBX::Min;
+use TBX::Min 0.05;
 use Path::Tiny;
 use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
