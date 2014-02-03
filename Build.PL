@@ -15,7 +15,8 @@ my $build = Module::Build->new(
 		"Path::Tiny" => "0.052",
 		"Test::LongString" => "0.15",
 		"Test::XML" => "0.08",
-	}
+	},
+	create_makefile_pl => 'traditional',
 );
 
 $build->create_build_script();
