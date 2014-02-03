@@ -1,21 +1,54 @@
-UTX-TBXnny-Converter
-====================
+# NAME
 
-A dual converter for Termbase Exchange files in UTX 1.11 (see http://www.aamt.info/english/utx/ for specifications) format to TBX-Min.
+Convert::TBX::UTX - Convert back and forth from TBX-Min to UTX format
 
+# SYNOPSIS
 
-lib/TBX/UTX.pm  ->   This converter takes in either TBX or UTX 1.11 files and outputs their respective counterpart (TBX->UTX, UTX->TBX)
+	use Convert::TBX::UTX;
+	my $UTX_string_output = min2utx('/path/to/file.tbx', '/path/to/output');  #or scalar ref to data
+	my $TBX_string_output = utx2min('/path/to/file.utx', '/path/to/output');  
 
+# DESCRIPTION
 
-Usage:  
-======
-***Required Modules: TBX::Min, DateTime***
+A two way converter for Termbase Exchange files in UTX 1.11 (see http://www.aamt.info/english/utx/ for specifications) format to TBX-Min.
 
-*~$ perl (Converter Name) (--tbx2utx or --utx2tbx depending on the conversion direction) (Input) (Output)*
+# METHODS
 
+## 'min2utx(input, output)'
 
+	Converts TBX-Min into UTX format.  'Input' can be either filename or scalar ref containing scalar data.  If given only 'input' it returns a scalar ref containing the converted data.  If given both 'input' and 'output', it will print converted data to the 'output' file.
 
+## 'utx2min(input, output)'
 
-Example (TBX-Min to UTX): UTX.pm --tbx2utx Input.tbx Output.utx
+	Converts UTX into TBX-Min format.  'Input' can be either filename or scalar ref containing scalar data.  If given only 'input' it returns a scalar ref containing the converted data.  If given both 'input' and 'output', it will print converted data to the 'output' file.
 
-Example (UTX to TBX-Min): UTX.pm --utx2tbx Input.utx Output.tbx
+# TERMINAL COMMANDS
+
+## 'tbxmin2utx <input_tbx> <output>'
+
+	Converts TBX-Min to UTX and prints to <output>.
+
+## 'utx2tbxmin <input_utx> <output>'
+
+	Converts UTX to TBX-Min and prints to <output>.
+
+# UTX.pm as script
+
+## 'perl UTX.pm --tbx2utx/--utx2tbx <input> <output>'
+
+	Example (TBX-Min to UTX): UTX.pm --tbx2utx Input.tbx Output.utx
+
+	Example (UTX to TBX-Min): UTX.pm --utx2tbx Input.utx Output.tbx
+
+# AUTHOR
+
+James Hayes <james.s.hayes@gmail.com>
+Nathan Glenn <garfieldnate@gmail.com>
+
+# COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2013 by Alan Melby.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
