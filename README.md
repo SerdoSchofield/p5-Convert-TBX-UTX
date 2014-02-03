@@ -24,17 +24,17 @@ A two way converter for Termbase Exchange files in UTX 1.11 (see http://www.aamt
 
 # TERMINAL COMMANDS
 
-## 'tbxmin2utx <input_tbx> <output>'
+## 'tbxmin2utx (input_tbx) (output)'
 
 	Converts TBX-Min to UTX and prints to <output>.
 
-## 'utx2tbxmin <input_utx> <output>'
+## 'utx2tbxmin (input_utx) (output)'
 
 	Converts UTX to TBX-Min and prints to <output>.
 
 # UTX.pm as script
 
-## 'perl UTX.pm --tbx2utx/--utx2tbx <input> <output>'
+## 'perl UTX.pm --tbx2utx/--utx2tbx (input) (output)'
 
 	Example (TBX-Min to UTX): UTX.pm --tbx2utx Input.tbx Output.utx
 
