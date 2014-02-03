@@ -14,11 +14,11 @@ A two way converter for Termbase Exchange files in UTX 1.11 (see http://www.aamt
 
 # METHODS
 
-## 'min2utx(input, output)'
+## 'min2utx(input [, output])'
 
 	Converts TBX-Min into UTX format.  'Input' can be either filename or scalar ref containing scalar data.  If given only 'input' it returns a scalar ref containing the converted data.  If given both 'input' and 'output', it will print converted data to the 'output' file.
 
-## 'utx2min(input, output)'
+## 'utx2min(input [, output])'
 
 	Converts UTX into TBX-Min format.  'Input' can be either filename or scalar ref containing scalar data.  If given only 'input' it returns a scalar ref containing the converted data.  If given both 'input' and 'output', it will print converted data to the 'output' file.
 
