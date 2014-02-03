@@ -40,9 +40,9 @@ A two way converter for Termbase Exchange files in UTX 1.11 (see http://www.aamt
 
 	Example (UTX to TBX-Min): UTX.pm --utx2tbx Input.utx Output.tbx
 
-# AUTHOR
+# AUTHORS
 
-James Hayes <james.s.hayes@gmail.com>
+James Hayes <james.s.hayes@gmail.com>,
 Nathan Glenn <garfieldnate@gmail.com>
 
 # COPYRIGHT AND LICENSE
