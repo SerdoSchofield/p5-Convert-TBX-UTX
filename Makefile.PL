@@ -14,8 +14,8 @@ WriteMakefile
                  },
   'INSTALLDIRS' => 'site',
   'EXE_FILES' => [
-                   'bin/tbxmin2utx.pl',
-                   'bin/utx2tbxmin.pl'
+                   'bin/tbxmin2utx',
+                   'bin/utx2tbxmin'
                  ],
   'PL_FILES' => {}
 )

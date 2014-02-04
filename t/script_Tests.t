@@ -10,8 +10,8 @@ use Path::Tiny;
 
 path("$Bin/Corpus/Output.test")->remove;
 
-my $utx2tbx = path("$Bin/../bin/utx2tbxmin.pl");
-my $tbx2utx = path("$Bin/../bin/tbxmin2utx.pl");
+my $utx2tbx = path("$Bin/../bin/utx2tbxmin");
+my $tbx2utx = path("$Bin/../bin/tbxmin2utx");
 my $utx_datafile = path("$Bin/Corpus/Sample.utx");
 my $tbx_datafile = path("$Bin/Corpus/Sample.tbx");
 
