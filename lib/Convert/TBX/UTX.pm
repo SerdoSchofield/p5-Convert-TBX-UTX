@@ -1,5 +1,12 @@
 #!usr/bin/perl
-
+#
+# This file is part of Convert-TBX-UTX
+#
+# This software is copyright (c) 2014 by Alan Melby.
+#
+# This is free software; you can redistribute it and/or modify it under
+# the same terms as the Perl 5 programming language system itself.
+#
 package Convert::TBX::UTX;
 use strict;
 use warnings;
@@ -14,7 +21,7 @@ use Exporter::Easy (
 
 our $VERSION = '0.02';
 
-#converts utx to tbx
+# ABSTRACT:  Convert UTX to TBX-Min
 sub utx2min {
 	my ($fh, $TBX);
 	my ($input, $output) = @_;
@@ -23,17 +30,17 @@ sub utx2min {
 	$TBX = _import_utx($fh);
 	
 	if (defined $output) { _print_converted($TBX, $output) };
-	return $TBX;
+	return \$TBX;
 }
 
-#converts tbx to utx
+# ABSTRACT:  Convert TBX-Min to UTX
 sub min2utx {
 	my ($fh, $data, $UTX);
 	my ($input, $output) = @_;
 	$UTX = _export_utx($input);
 	if (defined $output) { _print_converted($UTX, $output) };
 	
-	return $UTX;
+	return \$UTX;
 }
 
 sub _get_handle {
@@ -53,7 +60,7 @@ sub _get_handle {
     return $fh;
 }
 
-#private subroutines
+# used if UTX.pm is called as a script
 sub _run {
 	my ($in, $out, $die_message);
 
@@ -435,3 +442,76 @@ sub _format_utx { #accepts $exists, and @output
 } #end _print_utx
 
 _run() unless caller;
+
+__END__
+ 
+=pod
+ 
+=head1 NAME
+ 
+Convert::TBX::UTX - Convert TBX-Min to UTX or UTX to TBX-Min
+ 
+=head1 VERSION
+ 
+version 0.02
+ 
+=head1 SYNOPSIS
+ 
+        use Convert::TBX::UTX 'min2utx';
+        min2utx('/path/to/file' [, '/path/to/output']); # string pointer okay too
+        
+        use Convert::TBX::UTX 'utx2min';
+        utx2min('/path/to/file' [, '/path/to/output']); # string pointer okay too
+        
+        
+        (in Terminal)
+        -$ tbxmin2utx '/path/to/file' '/path/to/output'
+        -$ utx2tbxmin '/path/to/file' '/path/to/output'
+        
+        -$ perl '~/Convert/TBX/UTX.pm' --tbx2utx/--utx2tbx '/path/to/file' '/path/to/output'
+ 
+=head1 DESCRIPTION
+ 
+This module converts TBX-Min XML into TBX-Basic XML.
+ 
+=head1 FUNCTIONS
+ 
+=head2 C<min2utx>
+ 
+Converts TBX-Min into UTX format.  'Input' can be either filename or scalar ref containing scalar data.
+If given only 'input' it returns a scalar ref containing the converted data.
+If given both 'input' and 'output', it will print converted data to the 'output' file.
+
+=head2 C<utx2min>
+
+Converts UTX into TBX-Min format.  'Input' can be either filename or scalar ref containing scalar data.
+If given only 'input' it returns a scalar ref containing the converted data.
+If given both 'input' and 'output', it will print converted data to the 'output' file.
+ 
+ 
+=head1 TERMINAL COMMANDS
+
+=head2 C<tbxmin2utx>
+ 
+Converts TBX-Min into UTX format.  
+Input must be filename and Output must be desired output filename.
+
+=head2 C<utx2tbxmin>
+
+Converts UTX into TBX-Min format. 
+Input must be filename and Output must be desired output filename.
+
+=head1 AUTHOR
+ 
+James Hayes <james.s.hayes@gmail.com>,
+Nathan Glenn <garfieldnate@gmail.com>
+ 
+=head1 COPYRIGHT AND LICENSE
+ 
+This software is copyright (c) 2014 by Alan Melby.
+ 
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+ 
+=cut
+
