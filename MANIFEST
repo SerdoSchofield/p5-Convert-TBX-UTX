@@ -1,5 +1,5 @@
-bin/tbxmin2utx
-bin/utx2tbxmin
+bin/tbx2utx
+bin/utx2tbx
 Build.PL
 lib/Convert/TBX/UTX.pm
 MANIFEST			This list of files

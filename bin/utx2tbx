@@ -1,0 +1,10 @@
+#!usr/bin/perl
+
+use strict;
+use warnings;
+use Convert::TBX::UTX qw(utx2min);
+
+die "Usage: $0 <file.utx> <output>\n"
+	unless @ARGV == 2;
+
+utx2min(@ARGV);

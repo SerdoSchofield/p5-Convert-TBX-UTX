@@ -453,7 +453,7 @@ Convert::TBX::UTX - Convert TBX-Min to UTX or UTX to TBX-Min
  
 =head1 VERSION
  
-version 0.02
+version 0.03
  
 =head1 SYNOPSIS
  
@@ -465,10 +465,8 @@ version 0.02
         
         
         (in Terminal)
-        -$ tbxmin2utx '/path/to/file' '/path/to/output'
-        -$ utx2tbxmin '/path/to/file' '/path/to/output'
-        
-        -$ perl '~/Convert/TBX/UTX.pm' --tbx2utx/--utx2tbx '/path/to/file' '/path/to/output'
+        -$ tbx2utx '/path/to/file' '/path/to/output'
+        -$ utx2tbx '/path/to/file' '/path/to/output'
  
 =head1 DESCRIPTION
  
@@ -491,12 +489,12 @@ If given both 'input' and 'output', it will print converted data to the 'output'
  
 =head1 TERMINAL COMMANDS
 
-=head2 C<tbxmin2utx>
+=head2 C<tbx2utx>
  
 Converts TBX-Min into UTX format.  
 Input must be filename and Output must be desired output filename.
 
-=head2 C<utx2tbxmin>
+=head2 C<utx2tbx>
 
 Converts UTX into TBX-Min format. 
 Input must be filename and Output must be desired output filename.
