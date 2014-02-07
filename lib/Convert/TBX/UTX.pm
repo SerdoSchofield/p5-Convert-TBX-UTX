@@ -19,7 +19,7 @@ use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
 	);
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 # ABSTRACT:  Convert UTX to TBX-Min
 sub utx2min {
