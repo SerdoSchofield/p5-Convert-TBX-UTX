@@ -9,13 +9,14 @@ WriteMakefile
                    'Exporter::Easy' => '0.16',
                    'Path::Tiny' => '0.052',
                    'TBX::Min' => '0.05',
+                   'Test::Base' => '0.62',
                    'Test::LongString' => '0.15',
                    'Test::XML' => '0.08'
                  },
   'INSTALLDIRS' => 'site',
   'EXE_FILES' => [
-                   'bin/tbxmin2utx',
-                   'bin/utx2tbxmin'
+                   'bin/tbx2utx',
+                   'bin/utx2tbx'
                  ],
   'PL_FILES' => {}
 )
