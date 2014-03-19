@@ -151,7 +151,7 @@ sub _import_utx {
 	else{
 		$directionality = 'monodirectional'
 	}
-	$id = '-' if defined $id ==0;
+#	$id = '' if defined $id == 0;
 	
 	_export_tbx([$fhin, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record]);
 # 	return [$data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record];
@@ -162,14 +162,14 @@ sub _export_tbx {
 	my $glossary = shift;
 	my ($data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
 
-	#~ my $timestamp = DateTime->now()->iso8601();  #only use if desired timestamp is time of conversion rather than the timestamp included on the file being converted
+	my $generated_timestamp = DateTime->now()->iso8601();  #only use if desired timestamp is time of conversion rather than the timestamp included on the file being converted or if there is no timestamp to convert
 
 	my $ID_Check = TBX::Min->new();
 	my $TBX = TBX::Min->new();
 	$TBX->source_lang($src) if (defined $src);
 	$TBX->target_lang($tgt) if (defined $tgt);
 	$TBX->creator($creator) if (defined $creator);
-	$TBX->date_created($timestamp);
+	(defined $timestamp) ? ($TBX->date_created($timestamp)) : ($TBX->date_created($generated_timestamp));
 	$TBX->description($description) if (defined $description);
 	$TBX->directionality($directionality) if (defined $directionality);
 	$TBX->license($license) if (defined $license);
@@ -242,7 +242,7 @@ sub _export_tbx {
 		my $c_id = $entry_value->id;
 		$count_ids_two{$c_id}++ if defined $c_id;
 		
-		if (defined $c_id == 0 or $c_id =~ /-/ or (defined $c_id && $count_ids_one{$c_id} > 1 && $count_ids_two{$c_id} > 1)) {
+		if (defined $c_id == 0 or $c_id eq '-'  or (defined $c_id && $count_ids_one{$c_id} > 1 && $count_ids_two{$c_id} > 1)) {
 			do  {$generated_ids++} until ("@entry_ids" !~ sprintf("%03d", $generated_ids));
 			push @entry_ids, $generated_ids;
 			$entry_value->id("C".sprintf("%03d", $generated_ids))
@@ -267,7 +267,7 @@ sub _export_utx {
 	#Get values from input
 	$source_lang = $TBX->source_lang if (defined $TBX->source_lang);
 	$target_lang = $TBX->target_lang if (defined $TBX->target_lang);
-	$timestamp = $TBX->date_created if (defined $TBX->date_created);
+	(defined $TBX->date_created) ? ($timestamp = $TBX->date_created) : ($timestamp = DateTime->now()->iso8601());
 	$creator = "copyright: ".$TBX->creator if (defined $TBX->creator);
 	$license = "license: ".$TBX->license if (defined $TBX->license);
 	$directionality = $TBX->directionality if (defined $TBX->directionality);
@@ -302,7 +302,7 @@ sub _export_utx {
 					$term_info{term} = $src_term;
 					
 					my $value = $term_group->part_of_speech;
-					(defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i) ? ($src_pos = $value) : ($src_pos = "-");
+					(defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i) ? ($src_pos = $value) : ($src_pos = "");
 					$src_pos = 'noun' if $src_pos eq 'properNoun';
 					$term_info{pos} = $src_pos;
 					
@@ -427,10 +427,10 @@ sub _set_terms {  #used when exporting to TBX
 		$source_term_group->status($value) if ($value =~ /preferred/i);
 	}
 	elsif ($key =~ /customer/i){
-		$term_group->customer($value) unless $value eq '-';
+		$term_group->customer($value) unless $value eq '';
 	}
 	elsif ($key =~ /comment/i) {
-		$term_group->note($value) unless $value eq '-';
+		$term_group->note($value) unless $value eq '';
 	}
 	$term_group->status('preferred') if defined $status_bidirectional; #UTX allows empty term status if bidirectionality flag is true
 	return ($term_group, $source_term_group); #return to &_export_tbx;
