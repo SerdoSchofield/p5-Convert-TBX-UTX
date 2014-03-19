@@ -99,9 +99,9 @@ __DATA__
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
-Hund	dog	noun	noun	approved	-	SAP	C002
+Hund	dog	noun	noun	approved		SAP	C002
 Hund	hound	noun	noun	non-standard	however bloodhound is used rather than blooddog	SAP	C002
-Katze	cat	noun	noun	-	-	SAP	c008
+Katze	cat	noun	noun			SAP	c008
 
 === test UTX conformant conversion of properNoun to noun
 --- tbx chomp
@@ -164,9 +164,9 @@ Katze	cat	noun	noun	-	-	SAP	c008
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
-Hund	dog	noun	noun	approved	-	SAP	C002
+Hund	dog	noun	noun	approved		SAP	C002
 Hund	hound	noun	noun	non-standard	however bloodhound is used rather than blooddog	SAP	C002
-Katze	cat	noun	noun	-	-	SAP	c008
+Katze	cat	noun	noun			SAP	c008
 
 
 === Test conversion to valid use of bidirectional flag in UTX
@@ -230,9 +230,9 @@ Katze	cat	noun	noun	-	-	SAP	c008
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
-Hund	dog	noun	noun	approved	-	SAP	C002
+Hund	dog	noun	noun	approved		SAP	C002
 Hund	hound	noun	noun	provisional	however bloodhound is used rather than blooddog	SAP	C002
-Katze	cat	noun	noun	-	-	SAP	c008
+Katze	cat	noun	noun			SAP	c008
 
 
 
@@ -301,6 +301,6 @@ Katze	cat	noun	noun	-	-	SAP	c008
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; bidirectional; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	tgt:comment	customer	concept ID
-Hund	dog	noun	noun	-	SAP	C002
+Hund	dog	noun	noun		SAP	C002
 Hund	hound	noun	noun	however bloodhound is used rather than blooddog	SAP	C002
-Katze	cat	noun	noun	-	SAP	c008
+Katze	cat	noun	noun		SAP	c008

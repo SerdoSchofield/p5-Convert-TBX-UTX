@@ -19,7 +19,7 @@ use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
 	);
 
-our $VERSION = '0.03';
+our $VERSION = '0.031';
 
 # ABSTRACT:  Convert UTX to TBX-Min
 sub utx2min {
@@ -281,7 +281,7 @@ sub _export_utx {
 	foreach my $entry (@$entries){
 		my ($entry_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer);
 		my ($value_count, $approved_count);
-		
+		my (@source_term_info, @target_term_info);
 		if (defined $entry->id){
 			$entry_id = "\t".$entry->id;
 			$entry_id_exists = 1;
@@ -289,43 +289,51 @@ sub _export_utx {
 		$lang_groups = $entry->lang_groups;
 		
 		foreach my $lang_group (@$lang_groups){
+			
 			my $term_groups = $lang_group->term_groups;
 			my $code = $lang_group->code;
 			
 			foreach my $term_group (@$term_groups){
 				
-				my $status;
+				my ($status, %term_info);
 				
 				if ($code eq $source_lang){
 					$src_term = $term_group->term."\t";
+					$term_info{term} = $src_term;
 					
 					my $value = $term_group->part_of_speech;
 					(defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i) ? ($src_pos = $value) : ($src_pos = "-");
 					$src_pos = 'noun' if $src_pos eq 'properNoun';
+					$term_info{pos} = $src_pos;
 					
 					if (defined $term_group->note){
 						($src_note = "\t".$term_group->note);
+						$term_info{note} = $src_note;
 						$src_note_exists = 1;
 					}
 				}
 				elsif ($code eq $target_lang){
-					$tgt_term = $term_group->term."\t";
+					$tgt_term = $term_group->term;
+					$term_info{term} = $tgt_term;
 					
 					my $value = $term_group->part_of_speech;
 					if (defined $value && $value =~ /noun|properNoun|verb|adjective|adverb|sentece/i){ #technically sentence should never exist in current TBX-Min
 						$value = 'noun' if $value =~ /properNoun/i;
 						$tgt_pos = "\t".$value;
+						$term_info{pos} = $tgt_pos;
 						$tgt_pos_exists = 1;
 					}
 					
 					if (defined $term_group->note){
 						($tgt_note = "\t".$term_group->note);
+						$term_info{note} = $tgt_note;
 						$tgt_note_exists = 1;
 					}
 				}
 				
 				if (defined $term_group->customer){
 					($customer = "\t".$term_group->customer);
+					$term_info{customer} = $customer;
 					$customer_exists = 1;
 				}
 				
@@ -348,6 +356,7 @@ sub _export_utx {
 					
 					#~ push @status_list, $status;
 					$status = "\t".$status if defined $status;
+					$term_info{status} = $status if defined $status;
 					$status_exists = 1;
 					
 				}
@@ -355,11 +364,43 @@ sub _export_utx {
 				$directionality = undef unless (defined $approved_count && defined $value_count && 
 											$approved_count == $value_count);
 											
-											
-				if (defined $src_term && defined $tgt_term){
-					my @output_line = ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id);
+				push @source_term_info, \%term_info if ($code eq $source_lang);
+				push @target_term_info, \%term_info if ($code eq $target_lang);
+			}
+		}
+		
+		if (@source_term_info) {
+			foreach my $src_hash_ref (@source_term_info) {
+				my %src_term_info = %$src_hash_ref;
+				
+				if (@target_term_info) {
+					foreach my $tgt_hash_ref (@target_term_info){
+						my ($status, $customer);
+						my %tgt_term_info = %$tgt_hash_ref;
+
+							if (defined $src_term_info{status} == 1 && defined $tgt_term_info{status} == 1) { $status = $tgt_term_info{status} }
+							elsif (defined $src_term_info{status} == 0 && defined $tgt_term_info{status} == 1) { $status = $tgt_term_info{status} }
+							elsif (defined $src_term_info{status} == 1 && defined $tgt_term_info{status} == 0) { $status = $src_term_info{status} }
+						
+							if (defined $src_term_info{customer} == 1 && defined $tgt_term_info{customer} == 1) { $customer = $tgt_term_info{customer} }
+							elsif (defined $src_term_info{customer} == 0 && defined $tgt_term_info{customer} == 1) { $customer = $tgt_term_info{customer} }
+							elsif (defined $src_term_info{customer} == 1 && defined $tgt_term_info{customer} == 0) { $customer = $src_term_info{customer} }
+						
+						my @output_line = ($src_term_info{term}, $tgt_term_info{term}, $src_term_info{pos}, $tgt_term_info{pos}, $status, $customer, $src_term_info{note}, $tgt_term_info{note}, $entry_id);
+						push @output, \@output_line;
+					}
+				}else {
+					my @output_line = ($src_term_info{term}, "", $src_term_info{pos}, "", $src_term_info{status}, $src_term_info{customer}, $src_term_info{note}, "", $entry_id);
 					push @output, \@output_line;
 				}
+			}
+		} else {
+			print "The following target terms could not be converted into valid UTX due to lack of corresponding source terms:\n\n";
+			foreach my $tgt_hash_ref (@target_term_info){
+				# my ($status, $customer);
+				my %tgt_term_info = %$tgt_hash_ref;
+				
+				print $tgt_term_info{term}."\n";
 			}
 		}
 	}
@@ -426,15 +467,16 @@ sub _format_utx { #accepts $exists, and @output
 				
 		my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id) = @$output_line_ref;
 		
+		$tgt_term = $tgt_term."\t";
 		if (defined $src_term && defined $tgt_term){
 			$UTX .= "\n$src_term$tgt_term$src_pos";
 			
-			if ($tgt_pos_exists){ (defined $tgt_pos) ? ($UTX .= "$tgt_pos") : ($UTX .= "\t-") }
-			if ($status_exists){ (defined $status) ? ($UTX .= "$status") : ($UTX .= "\t-") }
-			if ($src_note_exists){ (defined $src_note) ? ($UTX .= "$src_note") : ($UTX .= "\t-") }
-			if ($tgt_note_exists){ (defined $tgt_note) ? ($UTX .= "$tgt_note") : ($UTX .= "\t-") }
-			if ($customer_exists){ (defined $customer) ? ($UTX .= "$customer") : ($UTX .= "\t-") }
-			if ($entry_id_exists){ (defined $entry_id) ? ($UTX .= "$entry_id") : ($UTX .= "\t-") }
+			if ($tgt_pos_exists){ (defined $tgt_pos) ? ($UTX .= "$tgt_pos") : ($UTX .= "\t") }
+			if ($status_exists){ (defined $status) ? ($UTX .= "$status") : ($UTX .= "\t") }
+			if ($src_note_exists){ (defined $src_note) ? ($UTX .= "$src_note") : ($UTX .= "\t") }
+			if ($tgt_note_exists){ (defined $tgt_note) ? ($UTX .= "$tgt_note") : ($UTX .= "\t") }
+			if ($customer_exists){ (defined $customer) ? ($UTX .= "$customer") : ($UTX .= "\t") }
+			if ($entry_id_exists){ (defined $entry_id) ? ($UTX .= "$entry_id") : ($UTX .= "\t") }
 		}
 	}
 	
