@@ -12,6 +12,6 @@ t/script_Tests.t
 t/TestUTX_TBX.pm
 t/UTX-TBX/convertTBX.t
 t/UTX-TBX/convertUTX.t
+Makefile.PL
 META.yml
 META.json
-Makefile.PL
