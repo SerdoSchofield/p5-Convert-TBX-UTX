@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Module::Build;
+use 5.010;
 
 my $build = Module::Build->new(
 	module_name	=> 'Convert::TBX::UTX',
