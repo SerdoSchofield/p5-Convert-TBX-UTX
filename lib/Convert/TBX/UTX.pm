@@ -19,7 +19,7 @@ use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
 	);
 
-our $VERSION = '0.031';
+our $VERSION = '0.032';
 
 # ABSTRACT:  Convert UTX to TBX-Min
 sub utx2min {
@@ -451,8 +451,8 @@ sub _format_utx { #accepts $exists, and @output
 	$UTX .= " $license;" if defined $license;
 	$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/);
 	$UTX .= " $DictID;\n" if defined $DictID;
-	$UTX .= "#$description;\n" if (defined $description); #print middle of header if necessary
-	$UTX .= "#src	tgt	src:pos";  #print necessary values of final line of Header
+	$UTX .= "#$description;" if (defined $description); #print middle of header if necessary
+	$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
 	
 	$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
 	$UTX .= "\tterm status" if ($status_exists && (defined $directionality == 0 or $directionality ne 'bidirectional'));
@@ -495,7 +495,7 @@ Convert::TBX::UTX - Convert TBX-Min to UTX or UTX to TBX-Min
  
 =head1 VERSION
  
-version 0.03
+version 0.032
  
 =head1 SYNOPSIS
  
