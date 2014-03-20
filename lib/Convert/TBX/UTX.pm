@@ -18,7 +18,8 @@ use Path::Tiny;
 use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
 	);
-
+use open ':encoding(utf8)', ':std';
+	
 our $VERSION = '0.032';
 
 # ABSTRACT:  Convert UTX to TBX-Min
@@ -279,6 +280,7 @@ sub _export_utx {
 	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $entry_id_exists) = 0;
 	
 	foreach my $entry (@$entries){
+		my $notehistory;
 		my ($entry_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer);
 		my ($value_count, $approved_count);
 		my (@source_term_info, @target_term_info);
@@ -298,7 +300,7 @@ sub _export_utx {
 				my ($status, %term_info);
 				
 				if ($code eq $source_lang){
-					$src_term = $term_group->term."\t";
+					$src_term = $term_group->term."\t" if (defined $term_group->term);
 					$term_info{term} = $src_term;
 					
 					my $value = $term_group->part_of_speech;
@@ -308,6 +310,8 @@ sub _export_utx {
 					
 					if (defined $term_group->note){
 						($src_note = "\t".$term_group->note);
+						$src_note = "\t" if (defined $notehistory && $term_group->note eq $notehistory);
+						$notehistory = $term_group->note if (defined $notehistory == 0);
 						$term_info{note} = $src_note;
 						$src_note_exists = 1;
 					}
@@ -326,6 +330,8 @@ sub _export_utx {
 					
 					if (defined $term_group->note){
 						($tgt_note = "\t".$term_group->note);
+						$tgt_note = "\t" if (defined $notehistory && $term_group->note eq $notehistory);
+						$notehistory = $term_group->note if (defined $notehistory == 0);
 						$term_info{note} = $tgt_note;
 						$tgt_note_exists = 1;
 					}
@@ -450,8 +456,8 @@ sub _format_utx { #accepts $exists, and @output
 	$UTX .= " $creator;" if defined $creator;
 	$UTX .= " $license;" if defined $license;
 	$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/);
-	$UTX .= " $DictID;\n" if defined $DictID;
-	$UTX .= "#$description;" if (defined $description); #print middle of header if necessary
+	$UTX .= " $DictID;" if defined $DictID;
+	$UTX .= "\n#$description;" if (defined $description); #print middle of header if necessary
 	$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
 	
 	$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
