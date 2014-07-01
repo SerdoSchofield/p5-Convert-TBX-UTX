@@ -21,7 +21,7 @@ system(qq{"$^X" -I "../p5-TBX-Min/lib" -Ilib "$utx2tbx" "$utx_datafile" "$outfil
 ok( path("$Bin/Corpus/Output.test")->exists, "TBX Output" );
 path("$Bin/Corpus/Output.test")->remove;
 
-
 system(qq{"$^X" -I "../p5-TBX-Min/lib" -Ilib "$tbx2utx" "$tbx_datafile" "$outfile"});
+print "\n"; #this prevents a rather confusing error of the path printing to STDOUT for no real reason?
 ok( path("$Bin/Corpus/Output.test")->exists, "UTX Output" );
 path("$Bin/Corpus/Output.test")->remove;

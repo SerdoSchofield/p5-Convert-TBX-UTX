@@ -8,16 +8,16 @@ plan tests => 1*blocks();
 filters {
 	tbx => 'convert_tbx',
 };
-
 my $int;
 
 for my $block(blocks()){
 	$int++;
+	print "\n" if $int == 1; #this prevents a rather confusing error of scalar refs contained in the blocks() array printing to STDOUT for no real reason?
 	is_string_nows($block->tbx, $block->output, "Expected $int");
 }
 
 __DATA__
-=== Header
+=== Header 1
 --- tbx chomp
 <?xml version='1.0' encoding="UTF-8"?>
 <TBX dialect="TBX-Min">
