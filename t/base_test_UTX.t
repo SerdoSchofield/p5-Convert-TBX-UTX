@@ -7,4 +7,4 @@ use Path::Tiny;
 
 my $convertUTX_test = path("$Bin/UTX-TBX", "convertUTX.t");
 
-system( qq("$^X" -Ilib "$convertUTX_test") );
+system( qq("$^X" -I "../p5-TBX-Min/lib" -Ilib "$convertUTX_test") );

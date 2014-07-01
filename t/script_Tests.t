@@ -17,11 +17,11 @@ my $tbx_datafile = path("$Bin/Corpus/Sample.tbx");
 
 my $outfile = path("$Bin/Corpus", "Output.test");
 
-system(qq{"$^X" -Ilib "$utx2tbx" "$utx_datafile" "$outfile"});
+system(qq{"$^X" -I "../p5-TBX-Min/lib" -Ilib "$utx2tbx" "$utx_datafile" "$outfile"});
 ok( path("$Bin/Corpus/Output.test")->exists, "TBX Output" );
 path("$Bin/Corpus/Output.test")->remove;
 
 
-system(qq{"$^X" -Ilib "$tbx2utx" "$tbx_datafile" "$outfile"});
+system(qq{"$^X" -I "../p5-TBX-Min/lib" -Ilib "$tbx2utx" "$tbx_datafile" "$outfile"});
 ok( path("$Bin/Corpus/Output.test")->exists, "UTX Output" );
 path("$Bin/Corpus/Output.test")->remove;

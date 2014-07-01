@@ -9,8 +9,10 @@ filters {
 	utx => 'convert_utx',
 };
 
+my $int;
 for my $block(blocks()){
-	is_xml($block->utx, $block->output, "Expected");
+	$int++;
+	is_xml($block->utx, $block->output, "Expected $int");
 }
 
 __DATA__
@@ -100,54 +102,54 @@ Katze	cat	noun	noun			SAP	c008
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<entry id="C002">
-			<langGroup xml:lang="de">
-				<termGroup>
+		<termEntry id="C002"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-			<entry id="C001">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+			<termEntry id="C001">
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>hound</term>
 					<customer>SAP</customer>
 					<note>however bloodhound is used rather than blooddog</note>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="c008">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="c008"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
+				</tig>
+			</langSet>
+		</termEntry>
 	</body>
 </TBX>
 
@@ -175,54 +177,54 @@ Katze	cat	noun	noun			SAP
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<entry id="C001">
-			<langGroup xml:lang="de">
-				<termGroup>
+		<termEntry id="C001"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-			<entry id="C002">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+			<termEntry id="C002"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>hound</term>
 					<customer>SAP</customer>
 					<note>however bloodhound is used rather than blooddog</note>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C003">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C003"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
+				</tig>
+			</langSet>
+		</termEntry>
 	</body>
 </TBX>
 
@@ -252,86 +254,86 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<entry id="C002">
-			<langGroup xml:lang="de">
-				<termGroup>
+		<termEntry id="C002"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C003">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C003"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>hound</term>
 					<customer>SAP</customer>
 					<note>however bloodhound is used rather than blooddog</note>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C008">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C008"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C004">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C004"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Foo</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>bar</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C001">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C001"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Bar</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>Foo</term>
 					<customer>Walmart</customer>
 					<note>Foobar</note>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
+				</tig>
+			</langSet>
+		</termEntry>
 	</body>
 </TBX>
 
@@ -360,92 +362,92 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<entry id="C002">
-			<langGroup xml:lang="de">
-				<termGroup>
+		<termEntry id="C002"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C003">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C003"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>hound</term>
 					<customer>SAP</customer>
 					<note>however bloodhound is used rather than blooddog</note>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C008">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C008"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Katze</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>cat</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C004">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C004"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Foo</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>bar</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C001">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C001"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Bar</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>Foo</term>
 					<customer>Walmart</customer>
 					<note>Foobar</note>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
+				</tig>
+			</langSet>
+		</termEntry>
 	</body>
 </TBX>
 
@@ -476,82 +478,82 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<entry id="C002">
-			<langGroup xml:lang="de">
-				<termGroup>
+		<termEntry id="C002"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>dog</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C003">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C003"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>hound</term>
 					<customer>SAP</customer>
 					<note>however bloodhound is used rather than blooddog</note>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C008">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C008"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C004">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C004"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Foo</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>bar</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="C001">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="C001"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Bar</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>Foo</term>
 					<customer>Walmart</customer>
 					<note>Foobar</note>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
+				</tig>
+			</langSet>
+		</termEntry>
 	</body>
 </TBX>
 
@@ -578,52 +580,52 @@ Katze	cat	noun	noun		CUSTOM NOTE	SAP	c008
 		<dateCreated>2013-12-20T17:00:45</dateCreated>
 	</header>
 	<body>
-		<entry id="C002">
-			<langGroup xml:lang="de">
-				<termGroup>
+		<termEntry id="C002"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-			<entry id="C001">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+			<termEntry id="C001"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>hound</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
-		<entry id="c008">
-			<langGroup xml:lang="de">
-				<termGroup>
+				</tig>
+			</langSet>
+		</termEntry>
+		<termEntry id="c008"><!--terminological entry-->
+			<langSet xml:lang="de">
+				<tig>
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-			<langGroup xml:lang="en">
-				<termGroup>
+				</tig>
+			</langSet>
+			<langSet xml:lang="en">
+				<tig>
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
-				</termGroup>
-			</langGroup>
-		</entry>
+				</tig>
+			</langSet>
+		</termEntry>
 	</body>
 </TBX>

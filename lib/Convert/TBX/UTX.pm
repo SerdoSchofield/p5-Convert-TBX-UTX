@@ -13,7 +13,7 @@ use warnings;
 use feature 'state';
 use feature 'say';
 use DateTime;
-use TBX::Min 0.06;
+use TBX::Min;
 use Path::Tiny;
 use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
@@ -96,7 +96,7 @@ sub _import_utx {
 	my $fhin = shift;
 # 	open my $fhin, '<', \$data;
 	my ($linein, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record, @field_name);
-
+	my $monolingual = 0;
 	# header lines
 	# input all relevant information until last line of header is found
 	# keep checking until 'src' or 'tgt' (last line of a UTX header)
@@ -105,8 +105,17 @@ sub _import_utx {
 		$_ = <$fhin>;
 		s/\s*$//; # chomp all trailing whitespace: space, CR, LF, whatever.
 		if ($linein == 1){
-			die "not a UTX file\n" unless /^#UTX/;
-			($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
+			s/^(.+)#UTX/#UTX/; #eliminate any type of BOM
+			die "not a UTX file\n" unless /#UTX/;
+			if (m{([a-zA-Z-]*)/([a-zA-Z-]*)})
+			{
+				($src, $tgt) = ($1, $2);
+			}
+			elsif(m{#UTX\s*[0-9\.]*\s*;\s*\t*([a-zA-Z-]*)\s*;?})
+			{
+				$src = $1;
+				$monolingual = 1;
+			}
 		}
 		if($_ !~ /^#[src|tgt]/i){
 			$timestamp = $1 if /; ?([0-9T:+-]+)/;
@@ -127,7 +136,7 @@ sub _import_utx {
 			die "no src column\n" unless $field_name[0] eq 'src';
 		}
 		#die "no tgt column\n" unless $field_name[1] eq 'tgt';
-		#die "no pos column\n" unless $field_name[2] =~ /pos/i;
+		die "no pos column\n" unless "@field_name" =~ /pos/i;
 		# a 'validating' UTX parser would also check for src:pos
 		# but we defer POS issues here
 		# As of UTX 1.2, a monolingual dictionary is allowed, therefore the check for 'tgt' column is not required in those cases
@@ -154,18 +163,18 @@ sub _import_utx {
 		$directionality = 'monodirectional' if ($directionality ne 'bidirectional');
 	}
 	else{
-		$directionality = 'monodirectional'
+		$directionality = 'monodirectional';
 	}
 #	$id = '' if defined $id == 0;
 	
-	_export_tbx([$fhin, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record]);
+	_export_tbx([$fhin, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, $monolingual, @record]);
 # 	return [$data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record];
 
 } # end import_utx
 
 sub _export_tbx {
 	my $glossary = shift;
-	my ($data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
+	my ($data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, $monolingual, @record) = @$glossary;
 
 	my $generated_timestamp = DateTime->now()->iso8601();  #only use if desired timestamp is time of conversion rather than the timestamp included on the file being converted or if there is no timestamp to convert
 
@@ -176,7 +185,7 @@ sub _export_tbx {
 	$TBX->creator($creator) if (defined $creator);
 	(defined $timestamp) ? ($TBX->date_created($timestamp)) : ($TBX->date_created($generated_timestamp));
 	$TBX->description($description) if (defined $description);
-	$TBX->directionality($directionality) if (defined $directionality);
+	$TBX->directionality($directionality) if (defined $directionality && $monolingual == 0);
 	$TBX->license($license) if (defined $license);
 	$TBX->id($id) if (defined $id);
 
@@ -184,7 +193,7 @@ sub _export_tbx {
 	foreach my $hash_ref (@record) {
 		my ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $entry, $status_bidirectional, @redo);
 		my %hash = %$hash_ref;
-		$entry = TBX::Min::Entry->new();
+		$entry = TBX::Min::TermEntry->new();
 		
 		if (keys(%hash) !~ /status$/ && $directionality eq 'bidirectional'){
 				$status_bidirectional = 1;
@@ -192,12 +201,12 @@ sub _export_tbx {
 		
 		while(my ($key, $value) = each %hash){
 			if ($key =~ /src$/  || $key =~ /term:$src/){
-				$lang_group_src = TBX::Min::LangGroup->new({code => $src});
-				$term_group_src = TBX::Min::TermGroup->new({term => $value});
+				$lang_group_src = TBX::Min::LangSet->new({code => $src});
+				$term_group_src = TBX::Min::TIG->new({term => $value});
 			}
-			elsif ($key =~ /tgt$/ || $key =~ /term:$tgt/){
-				$lang_group_tgt = TBX::Min::LangGroup->new({code => $tgt});
-				$term_group_tgt = TBX::Min::TermGroup->new({term => $value});
+			elsif (defined $tgt && ($key =~ /tgt$/ || $key =~ /term:$tgt/)){
+				$lang_group_tgt = TBX::Min::LangSet->new({code => $tgt});
+				$term_group_tgt = TBX::Min::TIG->new({term => $value});
 			}
 			
 		}
@@ -205,7 +214,7 @@ sub _export_tbx {
 			if (($key =~ /src/ && $key !~ /src$/) || ($key =~ /pos:$src/) || ($key =~ /term status:$src/)){
 				($term_group_src) = _set_terms($key, $value, $term_group_src, $status_bidirectional);
 			}
-			elsif ($key =~ /tgt/ && $key !~ /tgt$/ || ($key =~ /pos:$tgt/) || ($key =~ /term status:$tgt/)){
+			elsif (defined $tgt && ($key =~ /tgt/ && $key !~ /tgt$/ || ($key =~ /pos:$tgt/) || ($key =~ /term status:$tgt/))){
 				($term_group_tgt) = _set_terms($key, $value, $term_group_tgt, $status_bidirectional);
 			}
 			elsif ($key =~ /\bid\b/i){
@@ -256,7 +265,7 @@ sub _export_tbx {
 	}	
 	
 	my $TBX_ref = $TBX->as_xml;
-	my $TBXstring .= "<?xml version='1.0' encoding=\"UTF-8\"?>\n".$$TBX_ref;  #as_xml returns a string ref
+	my $TBXstring = "<?xml version='1.0' encoding=\"UTF-8\"?>\n".$$TBX_ref;  #as_xml returns a string ref
 	return $TBXstring; #returns a string
 } #end export_tbx
 
@@ -368,7 +377,8 @@ sub _export_utx {
 				
 				if (defined $term_group->customer){
 					if($term_group->customer eq "\t"){$customer = " "}
-					($customer = "\t".$customer);
+					else {$customer = $term_group->customer};
+					$customer = "\t".$customer;
 					$term_info{customer} = $customer;
 					$customer_exists = 1;
 				}
@@ -401,7 +411,7 @@ sub _export_utx {
 											$approved_count == $value_count);
 											
 				push @source_term_info, \%term_info if ($code eq $source_lang);
-				push @target_term_info, \%term_info if ($code eq $target_lang);
+				push @target_term_info, \%term_info if (defined $target_lang && $code eq $target_lang);
 			}
 		}
 		
@@ -483,23 +493,27 @@ sub _format_utx { #accepts $exists, and @output
 	my $UTX;
 	
 	#print header
-	$UTX .= "#UTX 1.11;";
+	$UTX .= "#UTX 1.2;";
 	$UTX .= " $source_lang" if defined $source_lang;
-	$UTX .= "/$target_lang;" if defined $target_lang;
+	(defined $target_lang) ? ($UTX .= "/$target_lang;") : ($UTX .= ";");
 	$UTX .= " $timestamp;" if defined $timestamp;
 	$UTX .= " $creator;" if defined $creator;
 	$UTX .= " $license;" if defined $license;
-	$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/);
+	$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/ && defined $target_lang);
 	$UTX .= " $DictID;" if defined $DictID;
-	$UTX .= "\n#$description;" if (defined $description); #print middle of header if necessary
+	$UTX .= "\n##$description;" if (defined $description); #print middle of header if necessary
 	
 	if(defined $directionality && $directionality =~ /bidirectional/)
 	{
 		$UTX .= "\n#term:$source_lang term:$target_lang src:pos"
 	}
-	else
+	elsif(defined$target_lang)
 	{
 		$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
+	}
+	else
+	{
+		$UTX .= "\n#term:$source_lang	src:pos";  #print necessary values of final line of Header
 	}
 	
 	$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
@@ -514,11 +528,11 @@ sub _format_utx { #accepts $exists, and @output
 	foreach my $output_line_ref (@output) {
 				
 		my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id) = @$output_line_ref;
-		###This block may need to go in the future
+		###This block may need to be deleted in the future
 		$src_term = "\t" if (!defined $src_term || (defined $src_term && $src_term eq "\t") || (defined $src_term eq ""));
 		
-		$tgt_term = "" if (!defined $tgt_term || (defined $tgt_term && $tgt_term eq "\t")  || (defined $tgt_term eq ""));
-		$tgt_term = $tgt_term."\t";
+		$tgt_term = "" if ((!defined $tgt_term || (defined $tgt_term && $tgt_term eq "\t")  || (defined $tgt_term eq "")) && defined $target_lang);
+		$tgt_term = $tgt_term."\t" if (defined $target_lang);
 		
 		
 		$src_pos = "\t" if (!defined $src_pos || (defined $src_pos && $src_pos eq "\t")  || (defined $src_pos eq ""));
@@ -554,6 +568,38 @@ sub _format_utx { #accepts $exists, and @output
 				}else {
 					$UTX .= "\t";
 					}
+			}
+			if ($customer_exists && defined $customer && $customer !~ /^\s*$/)
+			{ 
+				if(defined $customer) { 
+					$UTX .= "$customer";
+				} else{ $UTX .= "\t" }
+			}
+			if ($entry_id_exists)
+			{ 
+				if(defined $entry_id && $entry_id !~ /^\s*$/)
+				{
+					$UTX .= "$entry_id";
+				}else{$UTX .= "\t"}
+			}
+		}
+		elsif(defined $src_term)
+		{
+			$UTX .= "\n$src_term$src_pos";
+						
+			if ($status_exists)
+			{ 
+				if (defined $status && $status !~ /^\s*$/)
+					{
+						$UTX .= "$status";
+					}else{$UTX .= "\t"}
+			}
+			if ($src_note_exists)
+			{ 
+				if(defined $src_note && $src_note !~ /^\s*$/)
+					{ 
+					$UTX .= "$src_note";
+					}else{$UTX .= "\t" }
 			}
 			if ($customer_exists && $customer !~ /^\s*$/)
 			{ 
