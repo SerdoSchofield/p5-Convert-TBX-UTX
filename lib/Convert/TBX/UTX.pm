@@ -20,7 +20,7 @@ use Exporter::Easy (
 	);
 use open ':encoding(utf8)', ':std';
 	
-our $VERSION = '0.032';
+our $VERSION = '0.04';
 
 # ABSTRACT:  Convert UTX to TBX-Min
 sub utx2min {
