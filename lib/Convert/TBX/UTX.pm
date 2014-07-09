@@ -13,7 +13,7 @@ use warnings;
 use feature 'state';
 use feature 'say';
 use DateTime;
-use TBX::Min 0.07;
+use TBX::Min;# 0.07;
 use Path::Tiny;
 use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
@@ -80,8 +80,7 @@ sub _run {
 		utx2tbx => \&utx2min
 	);
 
-	$import_type{$in}->($ARGV[1], $ARGV[2]);
-		
+	$import_type{$in}->($ARGV[1], $ARGV[2]);	
 }
 
 sub _print_converted {
@@ -237,7 +236,6 @@ sub _export_tbx {
 			$entry->add_lang_group($lang_group_tgt);
 		}
 		$entry->subject_field($subject);
-		
 		$ID_Check->add_entry($entry);
 	}
 	
@@ -617,6 +615,7 @@ sub _format_utx { #accepts $exists, and @output
 		}
 	}
 	
+	$UTX =~ s/\n/\r\n/g;
 	return $UTX;
 } #end _print_utx
 
