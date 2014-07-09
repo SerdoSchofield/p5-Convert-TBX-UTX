@@ -13,7 +13,7 @@ use warnings;
 use feature 'state';
 use feature 'say';
 use DateTime;
-use TBX::Min;# 0.07;
+use TBX::Min 0.07;
 use Path::Tiny;
 use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
@@ -490,131 +490,259 @@ sub _format_utx { #accepts $exists, and @output
 		$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output) = @$args;
 	my $UTX;
 	
-	#print header
-	$UTX .= "#UTX 1.2;";
-	$UTX .= " $source_lang" if defined $source_lang;
-	(defined $target_lang) ? ($UTX .= "/$target_lang;") : ($UTX .= ";");
-	$UTX .= " $timestamp;" if defined $timestamp;
-	$UTX .= " $creator;" if defined $creator;
-	$UTX .= " $license;" if defined $license;
-	$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/ && defined $target_lang);
-	$UTX .= " $DictID;" if defined $DictID;
-	$UTX .= "\n##$description;" if (defined $description); #print middle of header if necessary
 	
-	if(defined $directionality && $directionality =~ /bidirectional/)
-	{
-		$UTX .= "\n#term:$source_lang term:$target_lang src:pos"
-	}
-	elsif(defined$target_lang)
-	{
-		$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
-	}
-	else
-	{
-		$UTX .= "\n#term:$source_lang	src:pos";  #print necessary values of final line of Header
-	}
 	
-	$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
-	$UTX .= "\tterm status" if ($status_exists && (defined $directionality == 0 or $directionality ne 'bidirectional'));
-	$UTX .= "\tsrc:comment" if ($src_note_exists);
-	$UTX .= "\ttgt:comment" if ($tgt_note_exists);
-	$UTX .= "\tcustomer" if ($customer_exists);
-	$UTX .= "\tconcept ID" if ($entry_id_exists);
-	
-	$status_exists = 0 if (defined $directionality && $directionality =~ /bidirectional/);
-	
-	foreach my $output_line_ref (@output) {
-				
-		my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id) = @$output_line_ref;
-		###This block may need to be deleted in the future
-		$src_term = "\t" if (!defined $src_term || (defined $src_term && $src_term eq "\t") || (defined $src_term eq ""));
+	if(my $printUTX1_2){
+		#print header
+		$UTX .= "#UTX 1.2;";
+		$UTX .= " $source_lang" if defined $source_lang;
+		(defined $target_lang) ? ($UTX .= "/$target_lang;") : ($UTX .= ";");
+		$UTX .= " $timestamp;" if defined $timestamp;
+		$UTX .= " $creator;" if defined $creator;
+		$UTX .= " $license;" if defined $license;
+		$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/ && defined $target_lang);
+		$UTX .= " $DictID;" if defined $DictID;
+		$UTX .= "\n##$description;" if (defined $description); #print middle of header if necessary
 		
-		$tgt_term = "" if ((!defined $tgt_term || (defined $tgt_term && $tgt_term eq "\t")  || (defined $tgt_term eq "")) && defined $target_lang);
-		$tgt_term = $tgt_term."\t" if (defined $target_lang);
-		
-		
-		$src_pos = "\t" if (!defined $src_pos || (defined $src_pos && $src_pos eq "\t")  || (defined $src_pos eq ""));
-		####
-		if (defined $src_term && defined $tgt_term){
-			$UTX .= "\n$src_term$tgt_term$src_pos";
-						
-			if ($tgt_pos_exists)
-			{ 
-				if(defined $tgt_pos && $tgt_pos !~ /^\s*$/)
-					{
-					$UTX .= "$tgt_pos";
-					}else{$UTX .= "\t"}
-			}
-			if ($status_exists)
-			{ 
-				if (defined $status && $status !~ /^\s*$/)
-					{
-						$UTX .= "$status";
-					}else{$UTX .= "\t"}
-			}
-			if ($src_note_exists)
-			{ 
-				if(defined $src_note && $src_note !~ /^\s*$/)
-					{ 
-					$UTX .= "$src_note";
-					}else{$UTX .= "\t" }
-			}
-			if ($tgt_note_exists)
-			{
-				if(defined $tgt_note && $tgt_note !~ /^\s*$/){ 
-					$UTX .= "$tgt_note";
-				}else {
-					$UTX .= "\t";
-					}
-			}
-			if ($customer_exists && defined $customer && $customer !~ /^\s*$/)
-			{ 
-				if(defined $customer) { 
-					$UTX .= "$customer";
-				} else{ $UTX .= "\t" }
-			}
-			if ($entry_id_exists)
-			{ 
-				if(defined $entry_id && $entry_id !~ /^\s*$/)
-				{
-					$UTX .= "$entry_id";
-				}else{$UTX .= "\t"}
-			}
-		}
-		elsif(defined $src_term)
+		if(defined $directionality && $directionality =~ /bidirectional/)
 		{
-			$UTX .= "\n$src_term$src_pos";
-						
-			if ($status_exists)
-			{ 
-				if (defined $status && $status !~ /^\s*$/)
-					{
-						$UTX .= "$status";
-					}else{$UTX .= "\t"}
-			}
-			if ($src_note_exists)
-			{ 
-				if(defined $src_note && $src_note !~ /^\s*$/)
-					{ 
-					$UTX .= "$src_note";
-					}else{$UTX .= "\t" }
-			}
-			if ($customer_exists && $customer !~ /^\s*$/)
-			{ 
-				if(defined $customer) { 
-					$UTX .= "$customer";
-				} else{ $UTX .= "\t" }
-			}
-			if ($entry_id_exists)
-			{ 
-				if(defined $entry_id && $entry_id !~ /^\s*$/)
+			$UTX .= "\n#term:$source_lang term:$target_lang src:pos"
+		}
+		elsif(defined$target_lang)
+		{
+			$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
+		}
+		else
+		{
+			$UTX .= "\n#term:$source_lang	src:pos";  #print necessary values of final line of Header
+		}
+		
+		$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
+		$UTX .= "\tterm status" if ($status_exists && (defined $directionality == 0 or $directionality ne 'bidirectional'));
+		$UTX .= "\tsrc:comment" if ($src_note_exists);
+		$UTX .= "\ttgt:comment" if ($tgt_note_exists);
+		$UTX .= "\tcustomer" if ($customer_exists);
+		$UTX .= "\tconcept ID" if ($entry_id_exists);
+		
+		$status_exists = 0 if (defined $directionality && $directionality =~ /bidirectional/);
+		
+		foreach my $output_line_ref (@output) {
+					
+			my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id) = @$output_line_ref;
+			###This block may need to be deleted in the future
+			$src_term = "\t" if (!defined $src_term || (defined $src_term && $src_term eq "\t") || (defined $src_term eq ""));
+			
+			$tgt_term = "" if ((!defined $tgt_term || (defined $tgt_term && $tgt_term eq "\t")  || (defined $tgt_term eq "")) && defined $target_lang);
+			$tgt_term = $tgt_term."\t" if (defined $target_lang);
+			
+			
+			$src_pos = "\t" if (!defined $src_pos || (defined $src_pos && $src_pos eq "\t")  || (defined $src_pos eq ""));
+			####
+			if (defined $src_term && defined $tgt_term){
+				$UTX .= "\n$src_term$tgt_term$src_pos";
+							
+				if ($tgt_pos_exists)
+				{ 
+					if(defined $tgt_pos && $tgt_pos !~ /^\s*$/)
+						{
+						$UTX .= "$tgt_pos";
+						}else{$UTX .= "\t"}
+				}
+				if ($status_exists)
+				{ 
+					if (defined $status && $status !~ /^\s*$/)
+						{
+							$UTX .= "$status";
+						}else{$UTX .= "\t"}
+				}
+				if ($src_note_exists)
+				{ 
+					if(defined $src_note && $src_note !~ /^\s*$/)
+						{ 
+						$UTX .= "$src_note";
+						}else{$UTX .= "\t" }
+				}
+				if ($tgt_note_exists)
 				{
-					$UTX .= "$entry_id";
-				}else{$UTX .= "\t"}
+					if(defined $tgt_note && $tgt_note !~ /^\s*$/){ 
+						$UTX .= "$tgt_note";
+					}else {
+						$UTX .= "\t";
+						}
+				}
+				if ($customer_exists && defined $customer && $customer !~ /^\s*$/)
+				{ 
+					if(defined $customer) { 
+						$UTX .= "$customer";
+					} else{ $UTX .= "\t" }
+				}
+				if ($entry_id_exists)
+				{ 
+					if(defined $entry_id && $entry_id !~ /^\s*$/)
+					{
+						$UTX .= "$entry_id";
+					}else{$UTX .= "\t"}
+				}
+			}
+			elsif(defined $src_term)
+			{
+				$UTX .= "\n$src_term$src_pos";
+							
+				if ($status_exists)
+				{ 
+					if (defined $status && $status !~ /^\s*$/)
+						{
+							$UTX .= "$status";
+						}else{$UTX .= "\t"}
+				}
+				if ($src_note_exists)
+				{ 
+					if(defined $src_note && $src_note !~ /^\s*$/)
+						{ 
+						$UTX .= "$src_note";
+						}else{$UTX .= "\t" }
+				}
+				if ($customer_exists && $customer !~ /^\s*$/)
+				{ 
+					if(defined $customer) { 
+						$UTX .= "$customer";
+					} else{ $UTX .= "\t" }
+				}
+				if ($entry_id_exists)
+				{ 
+					if(defined $entry_id && $entry_id !~ /^\s*$/)
+					{
+						$UTX .= "$entry_id";
+					}else{$UTX .= "\t"}
+				}
 			}
 		}
+	}else
+	{
+		#print header
+		$UTX .= "#UTX 1.11;";
+		$UTX .= " $source_lang" if defined $source_lang;
+		(defined $target_lang) ? ($UTX .= "/$target_lang;") : ($UTX .= ";");
+		$UTX .= " $timestamp;" if defined $timestamp;
+		$UTX .= " $creator;" if defined $creator;
+		$UTX .= " $license;" if defined $license;
+		$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/ && defined $target_lang);
+		$UTX .= " $DictID;" if defined $DictID;
+		$UTX .= "\n#$description;" if (defined $description); #print middle of header if necessary
+		
+		if(defined$target_lang)
+		{
+			$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
+		}
+		else
+		{
+			$UTX .= "\n#src	src:pos";  #print necessary values of final line of Header
+		}
+		
+		$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
+		$UTX .= "\tterm status" if ($status_exists && (defined $directionality == 0 or $directionality ne 'bidirectional'));
+		$UTX .= "\tsrc:comment" if ($src_note_exists);
+		$UTX .= "\ttgt:comment" if ($tgt_note_exists);
+		$UTX .= "\tcustomer" if ($customer_exists);
+		$UTX .= "\tconcept ID" if ($entry_id_exists);
+		
+		$status_exists = 0 if (defined $directionality && $directionality =~ /bidirectional/);
+		
+		foreach my $output_line_ref (@output) {
+					
+			my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id) = @$output_line_ref;
+			###This block may need to be deleted in the future
+			$src_term = "\t" if (!defined $src_term || (defined $src_term && $src_term eq "\t") || (defined $src_term eq ""));
+			
+			$tgt_term = "" if ((!defined $tgt_term || (defined $tgt_term && $tgt_term eq "\t")  || (defined $tgt_term eq "")) && defined $target_lang);
+			$tgt_term = $tgt_term."\t" if (defined $target_lang);
+			
+			
+			$src_pos = "\t" if (!defined $src_pos || (defined $src_pos && $src_pos eq "\t")  || (defined $src_pos eq ""));
+			####
+			if (defined $src_term && defined $tgt_term){
+				$UTX .= "\n$src_term$tgt_term$src_pos";
+							
+				if ($tgt_pos_exists)
+				{ 
+					if(defined $tgt_pos && $tgt_pos !~ /^\s*$/)
+						{
+						$UTX .= "$tgt_pos";
+						}else{$UTX .= "\t"}
+				}
+				if ($status_exists)
+				{ 
+					if (defined $status && $status !~ /^\s*$/)
+						{
+							$UTX .= "$status";
+						}else{$UTX .= "\t"}
+				}
+				if ($src_note_exists)
+				{ 
+					if(defined $src_note && $src_note !~ /^\s*$/)
+						{ 
+						$UTX .= "$src_note";
+						}else{$UTX .= "\t" }
+				}
+				if ($tgt_note_exists)
+				{
+					if(defined $tgt_note && $tgt_note !~ /^\s*$/){ 
+						$UTX .= "$tgt_note";
+					}else {
+						$UTX .= "\t";
+						}
+				}
+				if ($customer_exists && defined $customer && $customer !~ /^\s*$/)
+				{ 
+					if(defined $customer) { 
+						$UTX .= "$customer";
+					} else{ $UTX .= "\t" }
+				}
+				if ($entry_id_exists)
+				{ 
+					if(defined $entry_id && $entry_id !~ /^\s*$/)
+					{
+						$UTX .= "$entry_id";
+					}else{$UTX .= "\t"}
+				}
+			}
+			elsif(defined $src_term)
+			{
+				$UTX .= "\n$src_term$src_pos";
+							
+				if ($status_exists)
+				{ 
+					if (defined $status && $status !~ /^\s*$/)
+						{
+							$UTX .= "$status";
+						}else{$UTX .= "\t"}
+				}
+				if ($src_note_exists)
+				{ 
+					if(defined $src_note && $src_note !~ /^\s*$/)
+						{ 
+						$UTX .= "$src_note";
+						}else{$UTX .= "\t" }
+				}
+				if ($customer_exists && $customer !~ /^\s*$/)
+				{ 
+					if(defined $customer) { 
+						$UTX .= "$customer";
+					} else{ $UTX .= "\t" }
+				}
+				if ($entry_id_exists)
+				{ 
+					if(defined $entry_id && $entry_id !~ /^\s*$/)
+					{
+						$UTX .= "$entry_id";
+					}else{$UTX .= "\t"}
+				}
+			}
+		
+		
+		
+		}
 	}
-	
 	$UTX =~ s/\n/\r\n/g;
 	return $UTX;
 } #end _print_utx
