@@ -2,22 +2,22 @@
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
-  'NAME' => 'Convert::TBX::UTX',
-  'PL_FILES' => {},
-  'INSTALLDIRS' => 'site',
   'VERSION_FROM' => 'lib/Convert/TBX/UTX.pm',
   'EXE_FILES' => [
                    'bin/tbx2utx',
                    'bin/utx2tbx'
                  ],
+  'NAME' => 'Convert::TBX::UTX',
   'PREREQ_PM' => {
-                   'DateTime' => '1.06',
-                   'Path::Tiny' => '0.052',
-                   'Test::XML' => '0.08',
                    'Test::LongString' => '0.15',
                    'Exporter::Easy' => '0.16',
-                   'Test::Base' => '0.62',
-                   'TBX::Min' => '0.05'
-                 }
+                   'DateTime' => '1.06',
+                   'Path::Tiny' => '0.052',
+                   'TBX::Min' => '0.05',
+                   'Test::XML' => '0.08',
+                   'Test::Base' => '0.62'
+                 },
+  'INSTALLDIRS' => 'site',
+  'PL_FILES' => {}
 )
 ;

@@ -18,8 +18,9 @@ use Path::Tiny;
 use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
 	);
-
-our $VERSION = '0.031';
+use open ':encoding(utf8)', ':std';
+	
+our $VERSION = '0.032';
 
 # ABSTRACT:  Convert UTX to TBX-Min
 sub utx2min {
@@ -151,7 +152,7 @@ sub _import_utx {
 	else{
 		$directionality = 'monodirectional'
 	}
-	$id = '-' if defined $id ==0;
+#	$id = '' if defined $id == 0;
 	
 	_export_tbx([$fhin, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record]);
 # 	return [$data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record];
@@ -162,14 +163,14 @@ sub _export_tbx {
 	my $glossary = shift;
 	my ($data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
 
-	#~ my $timestamp = DateTime->now()->iso8601();  #only use if desired timestamp is time of conversion rather than the timestamp included on the file being converted
+	my $generated_timestamp = DateTime->now()->iso8601();  #only use if desired timestamp is time of conversion rather than the timestamp included on the file being converted or if there is no timestamp to convert
 
 	my $ID_Check = TBX::Min->new();
 	my $TBX = TBX::Min->new();
 	$TBX->source_lang($src) if (defined $src);
 	$TBX->target_lang($tgt) if (defined $tgt);
 	$TBX->creator($creator) if (defined $creator);
-	$TBX->date_created($timestamp);
+	(defined $timestamp) ? ($TBX->date_created($timestamp)) : ($TBX->date_created($generated_timestamp));
 	$TBX->description($description) if (defined $description);
 	$TBX->directionality($directionality) if (defined $directionality);
 	$TBX->license($license) if (defined $license);
@@ -242,7 +243,7 @@ sub _export_tbx {
 		my $c_id = $entry_value->id;
 		$count_ids_two{$c_id}++ if defined $c_id;
 		
-		if (defined $c_id == 0 or $c_id =~ /-/ or (defined $c_id && $count_ids_one{$c_id} > 1 && $count_ids_two{$c_id} > 1)) {
+		if (defined $c_id == 0 or $c_id eq '-'  or (defined $c_id && $count_ids_one{$c_id} > 1 && $count_ids_two{$c_id} > 1)) {
 			do  {$generated_ids++} until ("@entry_ids" !~ sprintf("%03d", $generated_ids));
 			push @entry_ids, $generated_ids;
 			$entry_value->id("C".sprintf("%03d", $generated_ids))
@@ -267,7 +268,7 @@ sub _export_utx {
 	#Get values from input
 	$source_lang = $TBX->source_lang if (defined $TBX->source_lang);
 	$target_lang = $TBX->target_lang if (defined $TBX->target_lang);
-	$timestamp = $TBX->date_created if (defined $TBX->date_created);
+	(defined $TBX->date_created) ? ($timestamp = $TBX->date_created) : ($timestamp = DateTime->now()->iso8601());
 	$creator = "copyright: ".$TBX->creator if (defined $TBX->creator);
 	$license = "license: ".$TBX->license if (defined $TBX->license);
 	$directionality = $TBX->directionality if (defined $TBX->directionality);
@@ -279,6 +280,7 @@ sub _export_utx {
 	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $entry_id_exists) = 0;
 	
 	foreach my $entry (@$entries){
+		my $notehistory;
 		my ($entry_id, $lang_groups, $src_term, $tgt_term, $src_pos, $tgt_pos, $src_note, $tgt_note, $customer);
 		my ($value_count, $approved_count);
 		my (@source_term_info, @target_term_info);
@@ -298,16 +300,18 @@ sub _export_utx {
 				my ($status, %term_info);
 				
 				if ($code eq $source_lang){
-					$src_term = $term_group->term."\t";
+					$src_term = $term_group->term."\t" if (defined $term_group->term);
 					$term_info{term} = $src_term;
 					
 					my $value = $term_group->part_of_speech;
-					(defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i) ? ($src_pos = $value) : ($src_pos = "-");
+					(defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i) ? ($src_pos = $value) : ($src_pos = "");
 					$src_pos = 'noun' if $src_pos eq 'properNoun';
 					$term_info{pos} = $src_pos;
 					
 					if (defined $term_group->note){
 						($src_note = "\t".$term_group->note);
+						$src_note = "\t" if (defined $notehistory && $term_group->note eq $notehistory);
+						$notehistory = $term_group->note if (defined $notehistory == 0);
 						$term_info{note} = $src_note;
 						$src_note_exists = 1;
 					}
@@ -326,6 +330,8 @@ sub _export_utx {
 					
 					if (defined $term_group->note){
 						($tgt_note = "\t".$term_group->note);
+						$tgt_note = "\t" if (defined $notehistory && $term_group->note eq $notehistory);
+						$notehistory = $term_group->note if (defined $notehistory == 0);
 						$term_info{note} = $tgt_note;
 						$tgt_note_exists = 1;
 					}
@@ -427,10 +433,10 @@ sub _set_terms {  #used when exporting to TBX
 		$source_term_group->status($value) if ($value =~ /preferred/i);
 	}
 	elsif ($key =~ /customer/i){
-		$term_group->customer($value) unless $value eq '-';
+		$term_group->customer($value) unless $value eq '';
 	}
 	elsif ($key =~ /comment/i) {
-		$term_group->note($value) unless $value eq '-';
+		$term_group->note($value) unless $value eq '';
 	}
 	$term_group->status('preferred') if defined $status_bidirectional; #UTX allows empty term status if bidirectionality flag is true
 	return ($term_group, $source_term_group); #return to &_export_tbx;
@@ -450,9 +456,9 @@ sub _format_utx { #accepts $exists, and @output
 	$UTX .= " $creator;" if defined $creator;
 	$UTX .= " $license;" if defined $license;
 	$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/);
-	$UTX .= " $DictID;\n" if defined $DictID;
-	$UTX .= "#$description;\n" if (defined $description); #print middle of header if necessary
-	$UTX .= "#src	tgt	src:pos";  #print necessary values of final line of Header
+	$UTX .= " $DictID;" if defined $DictID;
+	$UTX .= "\n#$description;" if (defined $description); #print middle of header if necessary
+	$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
 	
 	$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
 	$UTX .= "\tterm status" if ($status_exists && (defined $directionality == 0 or $directionality ne 'bidirectional'));
@@ -495,7 +501,7 @@ Convert::TBX::UTX - Convert TBX-Min to UTX or UTX to TBX-Min
  
 =head1 VERSION
  
-version 0.03
+version 0.032
  
 =head1 SYNOPSIS
  

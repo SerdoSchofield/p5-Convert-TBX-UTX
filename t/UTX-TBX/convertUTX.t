@@ -82,9 +82,9 @@ __DATA__
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
-Hund	dog	noun	noun	approved	-	SAP	C002
-Hund	hound	noun	noun	-	however bloodhound is used rather than blooddog	SAP	C002
-Katze	cat	noun	noun	-	-	SAP	c008
+Hund	dog	noun	noun	approved		SAP	C002
+Hund	hound	noun	noun		however bloodhound is used rather than blooddog	SAP	C002
+Katze	cat	noun	noun			SAP	c008
 
 
 --- output chomp
@@ -157,9 +157,9 @@ Katze	cat	noun	noun	-	-	SAP	c008
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer
-Hund	dog	noun	noun	approved	-	SAP
-Hund	hound	noun	noun	-	however bloodhound is used rather than blooddog	SAP
-Katze	cat	noun	noun	-	-	SAP
+Hund	dog	noun	noun	approved		SAP
+Hund	hound	noun	noun		however bloodhound is used rather than blooddog	SAP
+Katze	cat	noun	noun			SAP
 
 
 --- output chomp
@@ -232,10 +232,10 @@ Katze	cat	noun	noun	-	-	SAP
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:comment	customer	concept ID
-Hund	dog	noun	noun	approved	-	SAP	C002
-Hund	hound	noun	noun	-	however bloodhound is used rather than blooddog	SAP	-
-Katze	cat	noun	noun	-	-	SAP	C008
-Foo	bar	noun	noun	-	-	-	-
+Hund	dog	noun	noun	approved		SAP	C002
+Hund	hound	noun	noun		however bloodhound is used rather than blooddog	SAP	-
+Katze	cat	noun	noun			SAP	C008
+Foo	bar	noun	noun				
 Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 
 
@@ -340,10 +340,10 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; bidirectional; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	tgt:comment	customer	concept ID
-Hund	dog	noun	noun	-	SAP	C002
+Hund	dog	noun	noun		SAP	C002
 Hund	hound	noun	noun	however bloodhound is used rather than blooddog	SAP	-
-Katze	cat	noun	noun	-	SAP	C008
-Foo	bar	noun	noun	-	-	-
+Katze	cat	noun	noun		SAP	C008
+Foo	bar	noun	noun			
 Bar	Foo	noun	noun	Foobar	Walmart	C001
 
 
@@ -456,10 +456,10 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 #UTX 1.11; de/en; 2013-12-20T17:00:45; copyright: Klaus-Dirk Schmidt; license: CC BY license can be freely copied and modified; Dictionary ID: TBX sample;
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	tgt:comment	customer	concept ID
-Hund	dog	noun	noun	-	SAP	C002
+Hund	dog	noun	noun		SAP	C002
 Hund	hound	noun	noun	however bloodhound is used rather than blooddog	SAP	-
-Katze	cat	noun	noun	-	SAP	C008
-Foo	bar	noun	noun	-	-	-
+Katze	cat	noun	noun		SAP	C008
+Foo	bar	noun	noun			
 Bar	Foo	noun	noun	Foobar	Walmart	C001
 
 
@@ -561,8 +561,8 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 #description: A short sample file demonstrating TBX-Min;
 #src	tgt	src:pos	tgt:pos	term status	tgt:custom	customer	concept ID
 Hund	dog	noun	noun	approved	CUSTOM NOTE	SAP	C002
-Hund	hound	noun	noun	-	however bloodhound is used rather than blooddog	SAP	C002
-Katze	cat	noun	noun	-	CUSTOM NOTE	SAP	c008
+Hund	hound	noun	noun		however bloodhound is used rather than blooddog	SAP	C002
+Katze	cat	noun	noun		CUSTOM NOTE	SAP	c008
 
 
 --- output chomp
