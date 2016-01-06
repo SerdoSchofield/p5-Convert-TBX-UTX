@@ -13,14 +13,14 @@ use warnings;
 use feature 'state';
 use feature 'say';
 use DateTime;
-use TBX::Min 0.05;
+use TBX::Min 0.06;
 use Path::Tiny;
 use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
 	);
 use open ':encoding(utf8)', ':std';
 	
-our $VERSION = '0.032';
+our $VERSION = '0.04';
 
 # ABSTRACT:  Convert UTX to TBX-Min
 sub utx2min {
@@ -97,6 +97,7 @@ sub _import_utx {
 # 	open my $fhin, '<', \$data;
 	my ($linein, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record, @field_name);
 
+	my $monolingual = 0;
 	# header lines
 	# input all relevant information until last line of header is found
 	# keep checking until 'src' or 'tgt' (last line of a UTX header)
@@ -105,8 +106,17 @@ sub _import_utx {
 		$_ = <$fhin>;
 		s/\s*$//; # chomp all trailing whitespace: space, CR, LF, whatever.
 		if ($linein == 1){
-			die "not a UTX file\n" unless /^#UTX/;
-			($src, $tgt) = ($1, $2) if m{([a-zA-Z-]*)/([a-zA-Z-]*)};
+			s/^(.+)#UTX/#UTX/; #eliminate any type of BOM
+			die "not a UTX file\n" unless /#UTX/;
+			if (m{([a-zA-Z-]*)/([a-zA-Z-]*)})
+			{
+				($src, $tgt) = ($1, $2);
+			}
+			elsif(m{#UTX\s*[0-9\.]*\s*;\s*\t*([a-zA-Z-]*)\s*;?})
+			{
+				$src = $1;
+				$monolingual = 1;
+			}
 		}
 		if($_ !~ /^#[src|tgt]/i){
 			$timestamp = $1 if /; ?([0-9T:+-]+)/;
@@ -115,18 +125,22 @@ sub _import_utx {
 			$description = $1 if /description: ?([^;]+)/i;
 			$id = $1 if /dictionary id:* ?([^;]+)/i;
 			$directionality = $1 if /(bidirectional)/i;
-			$subject = $1 if /subject\w*: ?([^;]+)/i;
+			$subject = $1 if /domain: ?([^;]+)/i;
 		}
-	} until ($_ =~ /^#[src|tgt]/i or eof); #eof catch is used for testing
+	} until ($_ =~ /^#[src|tgt|term]/i or eof); #eof catch is used for testing
 	
-	if ($_ =~ /^#[src|tgt]/i ){ #used for testing
+	if ($_ =~ /^#[src|tgt|term]/i ){ #used for testing
 		s/^#//;
 		@field_name = split /\t/;
-		die "no src column\n" unless $field_name[0] eq 'src';
-		die "no tgt column\n" unless $field_name[1] eq 'tgt';
-		die "no pos column\n" unless $field_name[2] =~ /pos/i;
+		if ($field_name[0] !~ /term/)
+		{
+			die "no src column\n" unless $field_name[0] eq 'src';
+		}
+		# die "no tgt column\n" unless $field_name[1] eq 'tgt';
+		die "no pos column\n" unless "@field_name" =~ /pos/i;
 		# a 'validating' UTX parser would also check for src:pos
 		# but we defer POS issues here
+		# As of UTX 1.2, a monolingual dictionary is allowed, therefore the check for 'tgt' column is not required in those cases
 
 		# body lines
 		while (<$fhin>) {
@@ -137,8 +151,8 @@ sub _import_utx {
 			my @field = split /\t/;
 			my %record;
 			%record = map {$field_name[$_] => $field[$_]} (0..$#field);
-			# clear out blanks, except src and tgt
-			for my $field (grep {$_ ne 'src' and $_ ne 'tgt'} keys %record) {
+			# clear out blanks, except src, tgt, or term
+			for my $field (grep {$_ ne 'src' and $_ ne 'tgt' and $_ ne 'term'} keys %record) {
 				delete $record{$field} unless $record{$field} =~ /\S/
 			}
 			push @record, \%record;
@@ -150,18 +164,18 @@ sub _import_utx {
 		$directionality = 'monodirectional' if ($directionality ne 'bidirectional');
 	}
 	else{
-		$directionality = 'monodirectional'
+		$directionality = 'monodirectional';
 	}
 #	$id = '' if defined $id == 0;
 	
-	_export_tbx([$fhin, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record]);
+	_export_tbx([$fhin, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, $monolingual, @record]);
 # 	return [$data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record];
 
 } # end import_utx
 
 sub _export_tbx {
 	my $glossary = shift;
-	my ($data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, @record) = @$glossary;
+	my ($data, $id, $src, $tgt, $timestamp, $creator, $license, $directionality, $description, $subject, $monolingual, @record) = @$glossary;
 
 	my $generated_timestamp = DateTime->now()->iso8601();  #only use if desired timestamp is time of conversion rather than the timestamp included on the file being converted or if there is no timestamp to convert
 
@@ -172,54 +186,62 @@ sub _export_tbx {
 	$TBX->creator($creator) if (defined $creator);
 	(defined $timestamp) ? ($TBX->date_created($timestamp)) : ($TBX->date_created($generated_timestamp));
 	$TBX->description($description) if (defined $description);
-	$TBX->directionality($directionality) if (defined $directionality);
+	$TBX->directionality($directionality) if (defined $directionality && $monolingual == 0);
 	$TBX->license($license) if (defined $license);
 	$TBX->id($id) if (defined $id);
 
 	#	This goes through each 
 	foreach my $hash_ref (@record) {
-		my ($lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $entry, $status_bidirectional, @redo);
+			my ($note_group, $noteGroupSrc, $noteGroupTgt, $lang_group_src, $lang_group_tgt, $term_group_src, $term_group_tgt, $entry, $status_bidirectional, @redo);
 		my %hash = %$hash_ref;
-		$entry = TBX::Min::Entry->new();
+		$entry = TBX::Min::TermEntry->new();
 		
 		if (keys(%hash) !~ /status$/ && $directionality eq 'bidirectional'){
 				$status_bidirectional = 1;
 			}
 		
 		while(my ($key, $value) = each %hash){
-			if ($key =~ /src$/){
-				$lang_group_src = TBX::Min::LangGroup->new({code => $src});
-				$term_group_src = TBX::Min::TermGroup->new({term => $value});
+			if ($key =~ /src$/  || $key =~ /term:$src/){
+				$lang_group_src = TBX::Min::LangSet->new({code => $src});
+				$term_group_src = TBX::Min::TIG->new({term => $value});
 			}
-			elsif ($key =~ /tgt$/){
-				$lang_group_tgt = TBX::Min::LangGroup->new({code => $tgt});
-				$term_group_tgt = TBX::Min::TermGroup->new({term => $value});
+			elsif (defined $tgt && ($key =~ /tgt$/ || $key =~ /term:$tgt/)){
+				$lang_group_tgt = TBX::Min::LangSet->new({code => $tgt});
+				$term_group_tgt = TBX::Min::TIG->new({term => $value});
 			}
 			
 		}
 		while(my ($key, $value) = each %hash){
-			if ($key =~ /src/ && $key !~ /src$/){
-				($term_group_src) = _set_terms($key, $value, $term_group_src, $status_bidirectional);
+			if (($key =~ /src/ && $key !~ /src$/) || ($key =~ /pos:$src/) || ($key =~ /term status:$src/)){
+				($term_group_src, $noteGroupSrc) = _set_terms($key, $value, $term_group_src, $status_bidirectional, $note_group);
 			}
-			elsif ($key =~ /tgt/ && $key !~ /tgt$/){
-				($term_group_tgt) = _set_terms($key, $value, $term_group_tgt, $status_bidirectional);
+			elsif (defined $tgt && ($key =~ /tgt/ && $key !~ /tgt$/ || ($key =~ /pos:$tgt/) || ($key =~ /term status:$tgt/))){
+				($term_group_tgt, $noteGroupTgt) = _set_terms($key, $value, $term_group_tgt, $status_bidirectional, $note_group);
 			}
 			elsif ($key =~ /\bid\b/i){
+					$value = "C".$value if (defined($value) && ($value !~ /\w*[a-z]\w*/gi));
 				$entry->id($value) if (defined $value);
 			}
 			elsif($key =~ /term status$/i){
-				($term_group_tgt, $term_group_src) = _set_terms($key, $value, $term_group_tgt, undef, $term_group_src);
+				($term_group_tgt, undef, $term_group_src) = _set_terms($key, $value, $term_group_tgt, undef, undef, $term_group_src);
 			}
 			elsif($key !~ /src|tgt/i){
-				($term_group_tgt) = _set_terms($key, $value, $term_group_tgt);
+				($term_group_src, $noteGroupSrc) = _set_terms($key, $value, $term_group_src, undef, $note_group);
+				($term_group_tgt, $noteGroupTgt) = _set_terms($key, $value, $term_group_tgt, undef, $note_group);
 			}
 		}
 		
 		if (defined $term_group_src){
+			if (defined $noteGroupSrc && @{$noteGroupSrc->notes} > 0){
+				$term_group_src->add_note_group($noteGroupSrc);
+			}
 			$lang_group_src->add_term_group($term_group_src);
 			$entry->add_lang_group($lang_group_src);
 		}
 		if (defined $term_group_tgt){
+			if (defined $noteGroupTgt && @{$noteGroupTgt->notes} > 0){
+				$term_group_tgt->add_note_group($noteGroupTgt);
+			}
 			$lang_group_tgt->add_term_group($term_group_tgt);
 			$entry->add_lang_group($lang_group_tgt);
 		}
@@ -252,7 +274,7 @@ sub _export_tbx {
 	}	
 	
 	my $TBX_ref = $TBX->as_xml;
-	my $TBXstring .= "<?xml version='1.0' encoding=\"UTF-8\"?>\n".$$TBX_ref;  #as_xml returns a string ref
+	my $TBXstring = "<?xml version='1.0' encoding=\"UTF-8\"?>\n".$$TBX_ref;  #as_xml returns a string ref
 	return $TBXstring; #returns a string
 } #end export_tbx
 
@@ -260,7 +282,7 @@ sub _export_utx {
 	my $fh = shift;
 	my $TBX = TBX::Min->new_from_xml($fh);
 	my ($source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, 
-		$description, $entries); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
+		$description, $entries, @custom); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
 	#note that in UTX 1.11, $source_lang, $target_lang,$creator, and $license are required
 	
 	#~ my $timestamp = DateTime->now()->iso8601();   #this was used to generate timestamp at time of conversion rather than read in the old one
@@ -277,7 +299,7 @@ sub _export_utx {
 	$entries = $TBX->entries if (defined $TBX->entries);
 	
 	my (@output, @status_list);
-	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $entry_id_exists) = 0;
+	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $src_custom_exists, $tgt_custom_exists, $entry_id_exists) = 0;
 	
 	foreach my $entry (@$entries){
 		my $notehistory;
@@ -300,45 +322,105 @@ sub _export_utx {
 				my ($status, %term_info);
 				
 				if ($code eq $source_lang){
+					$src_term = "\t" if (!defined $term_group->term || (defined $term_group->term && $term_group->term eq "\t"));
 					$src_term = $term_group->term."\t" if (defined $term_group->term);
 					$term_info{term} = $src_term;
 					
 					my $value = $term_group->part_of_speech;
-					(defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i) ? ($src_pos = $value) : ($src_pos = "");
+					if (defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i)
+					{
+						$value = "" if $value eq "\t";
+						$src_pos = $value
+					}
+					else
+					{
+						$src_pos = ""
+					}
+					# (defined $value && $value =~ /noun|properNoun|verb|adjective|adverb/i) ? ($src_pos = $value) : ($src_pos = "");
 					$src_pos = 'noun' if $src_pos eq 'properNoun';
 					$term_info{pos} = $src_pos;
 					
-					if (defined $term_group->note){
-						($src_note = "\t".$term_group->note);
-						$src_note = "\t" if (defined $notehistory && $term_group->note eq $notehistory);
-						$notehistory = $term_group->note if (defined $notehistory == 0);
-						$term_info{note} = $src_note;
-						$src_note_exists = 1;
+					if (@{$term_group->note_groups}){
+						foreach my $note_group (@{$term_group->note_groups})
+						{
+							foreach my $note (@{$note_group->notes})
+							{
+								$src_note = "\t" if (defined $notehistory && $note->noteValue eq $notehistory);
+
+								
+								if(!defined $notehistory || $note->noteValue ne $notehistory)
+								{
+									# print "CREATING NOTE HISTORY FROM $source_lang: ".$term_group->note."\n\n\n";
+									$notehistory = $note->noteValue;
+								}
+								$src_note = "\t".$note->noteValue unless (defined $src_note);
+# 								print "hello source note $source_lang: ".$src_note."\n\n\n";
+								
+								if (defined $note->noteKey)
+								{
+									push(@custom, $note->noteKey)  if $note->noteKey !~ @custom;
+									$term_info{$note->noteKey} = $src_note;
+									$src_custom_exists = 1;
+								}
+								else
+								{
+									$term_info{note} = $src_note;
+									$src_note_exists = 1;
+								}
+								
+							}
+						}
 					}
 				}
 				elsif ($code eq $target_lang){
 					$tgt_term = $term_group->term;
+					$tgt_term = "" if (!defined $tgt_term || (defined $tgt_term && $tgt_term eq "\t"));
 					$term_info{term} = $tgt_term;
 					
 					my $value = $term_group->part_of_speech;
-					if (defined $value && $value =~ /noun|properNoun|verb|adjective|adverb|sentece/i){ #technically sentence should never exist in current TBX-Min
+					if (defined $value && $value =~ /noun|properNoun|verb|adjective|adverb|sentence/i){ #technically sentence should never exist in current TBX-Min
 						$value = 'noun' if $value =~ /properNoun/i;
+						$value = "" if ($value eq "\t");
 						$tgt_pos = "\t".$value;
 						$term_info{pos} = $tgt_pos;
 						$tgt_pos_exists = 1;
 					}
 					
-					if (defined $term_group->note){
-						($tgt_note = "\t".$term_group->note);
-						$tgt_note = "\t" if (defined $notehistory && $term_group->note eq $notehistory);
-						$notehistory = $term_group->note if (defined $notehistory == 0);
-						$term_info{note} = $tgt_note;
-						$tgt_note_exists = 1;
+					if (@{$term_group->note_groups}){
+						foreach my $note_group (@{$term_group->note_groups})
+						{
+							foreach my $note (@{$note_group->notes})
+							{
+								$tgt_note = undef if (defined $notehistory && $note->noteValue eq $notehistory);
+								if(!defined $notehistory || $note->noteValue ne $notehistory)
+								{
+									# print "CREATING NOTE HISTORY FROM $target_lang".$term_group->note."\n\n\n";
+									$notehistory = $note->noteValue;
+								}
+								$tgt_note = "\t".$note->noteValue unless (defined $tgt_note);
+								# $notehistory = $term_group->note unless (defined $notehistory);
+# 								print "hello target note $target_lang: ".$tgt_note."\n\n\n";
+								if ($note->noteKey && defined $tgt_note)
+								{
+									push(@custom, $note->noteKey) if $note->noteKey !~ @custom;
+									$term_info{$note->noteKey} = $tgt_note;
+									$tgt_custom_exists = 1;
+								}
+								else
+								{
+									$term_info{note} = $tgt_note;
+									$tgt_note_exists = 1;
+								}
+								
+							}
+						}
 					}
 				}
 				
 				if (defined $term_group->customer){
-					($customer = "\t".$term_group->customer);
+					if($term_group->customer eq "\t"){$customer = " "}
+					else {$customer = $term_group->customer};
+					$customer = "\t".$customer;
 					$term_info{customer} = $customer;
 					$customer_exists = 1;
 				}
@@ -371,7 +453,7 @@ sub _export_utx {
 											$approved_count == $value_count);
 											
 				push @source_term_info, \%term_info if ($code eq $source_lang);
-				push @target_term_info, \%term_info if ($code eq $target_lang);
+				push @target_term_info, \%term_info if (defined $target_lang && $code eq $target_lang);
 			}
 		}
 		
@@ -392,11 +474,20 @@ sub _export_utx {
 							elsif (defined $src_term_info{customer} == 0 && defined $tgt_term_info{customer} == 1) { $customer = $tgt_term_info{customer} }
 							elsif (defined $src_term_info{customer} == 1 && defined $tgt_term_info{customer} == 0) { $customer = $src_term_info{customer} }
 						
-						my @output_line = ($src_term_info{term}, $tgt_term_info{term}, $src_term_info{pos}, $tgt_term_info{pos}, $status, $customer, $src_term_info{note}, $tgt_term_info{note}, $entry_id);
+# 							foreach (@custom)
+# 							{
+# 								if (defined $src_term_info{$_} == 1 && defined $tgt_term_info{$_} == 1) { $_ = $tgt_term_info{$_} }
+# 								elsif (defined $src_term_info{$_} == 0 && defined $tgt_term_info{$_} == 1) { $_ = $tgt_term_info{$_} }
+# 								elsif (defined $src_term_info{$_} == 1 && defined $tgt_term_info{$_} == 0) { $_ = $src_term_info{$_} }
+# 							}
+						
+						my @output_line = ($src_term_info{term}, $tgt_term_info{term}, $src_term_info{pos}, $tgt_term_info{pos}, $status, $customer,
+										   $src_term_info{note}, $tgt_term_info{note}, $entry_id, \%src_term_info, \%tgt_term_info);
 						push @output, \@output_line;
 					}
 				}else {
-					my @output_line = ($src_term_info{term}, "", $src_term_info{pos}, "", $src_term_info{status}, $src_term_info{customer}, $src_term_info{note}, "", $entry_id);
+					my @output_line = ($src_term_info{term}, "", $src_term_info{pos}, "", $src_term_info{status}, $src_term_info{customer},
+									   $src_term_info{note}, "", $entry_id, \%src_term_info);
 					push @output, \@output_line;
 				}
 			}
@@ -411,81 +502,406 @@ sub _export_utx {
 		}
 	}
 	
-	my $UTX = _format_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $entry_id_exists,
-					$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output]);
+	my $UTX = _format_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $src_custom_exists, $tgt_custom_exists,
+					$entry_id_exists, $source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, \@custom, @output]);
 	return $UTX;
 } # end _export_utx
 
 sub _set_terms {  #used when exporting to TBX
-	my ($key, $value, $term_group, $status_bidirectional, $source_term_group) = @_;
-	if ($key =~ /pos$/){
+	my ($key, $value, $term_group, $status_bidirectional, $note_group, $source_term_group) = @_;
+	$note_group = TBX::Min::NoteGrp->new() unless defined $note_group;
+	if ($key =~ /pos$/ || $key =~ /pos:/){
 		
 		$value = "other" if $value !~ /verb|adjective|adverb|noun/i;
 		
 		$term_group->part_of_speech($value);
 	}
-	elsif ($key =~ /status$/){
+	elsif ($key =~ /status$/ || $key =~ /status:/){
 		$value = "admitted" if $value =~ /provisional/i;
 		$value = "preferred" if $value =~ /approved/i;
 		$value = "notRecommended" if $value =~ /non-standard/i;
 		$value = "obsolete" if $value =~ /forbidden/i;
 		$term_group->status($value) if ($value =~ /admitted|preferred|notRecommended|obsolete/i);
-		$source_term_group->status($value) if ($value =~ /preferred/i);
+		if ($key =~ /status$/)
+		{
+			$source_term_group->status($value) if ($value =~ /preferred/i);
+		}
 	}
 	elsif ($key =~ /customer/i){
 		$term_group->customer($value) unless $value eq '';
 	}
 	elsif ($key =~ /comment/i) {
-		$term_group->note($value) unless $value eq '';
+
+		#print "<(^_^)>$key(>^_^)>$value\n";
+		if (defined $value)
+		{
+			my $note = TBX::Min::Note->new({noteValue => $value});
+			$note_group->add_note($note);
+		}
+	}
+	else{
+		#print "<(^_^)>$key<(^_^<)$value\n";
+		if (defined $value)
+		{
+			my $note = TBX::Min::Note->new({
+				noteValue => $value,
+				noteKey => $key
+			});
+			$note_group->add_note($note);
+		}
 	}
 	$term_group->status('preferred') if defined $status_bidirectional; #UTX allows empty term status if bidirectionality flag is true
-	return ($term_group, $source_term_group); #return to &_export_tbx;
+	return ($term_group, $note_group, $source_term_group); #return to &_export_tbx;
 } # end _set_terms
 
 sub _format_utx { #accepts $exists, and @output
 	my $args = shift;
-	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $entry_id_exists,
-		$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, @output) = @$args;
+	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $src_custom_exists, $tgt_custom_exists, $entry_id_exists,
+		$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, $customRef, @output) = @$args;
 	my $UTX;
 	
-	#print header
-	$UTX .= "#UTX 1.11;";
-	$UTX .= " $source_lang" if defined $source_lang;
-	$UTX .= "/$target_lang;" if defined $target_lang;
-	$UTX .= " $timestamp;" if defined $timestamp;
-	$UTX .= " $creator;" if defined $creator;
-	$UTX .= " $license;" if defined $license;
-	$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/);
-	$UTX .= " $DictID;" if defined $DictID;
-	$UTX .= "\n#$description;" if (defined $description); #print middle of header if necessary
-	$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
+	my @custom = @$customRef;
 	
-	$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
-	$UTX .= "\tterm status" if ($status_exists && (defined $directionality == 0 or $directionality ne 'bidirectional'));
-	$UTX .= "\tsrc:comment" if ($src_note_exists);
-	$UTX .= "\ttgt:comment" if ($tgt_note_exists);
-	$UTX .= "\tcustomer" if ($customer_exists);
-	$UTX .= "\tconcept ID" if ($entry_id_exists);
-	
-	$status_exists = 0 if (defined $directionality && $directionality =~ /bidirectional/);
-	
-	foreach my $output_line_ref (@output) {
-				
-		my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id) = @$output_line_ref;
+	if(my $printUTX1_2){
+		#print header
+		$UTX .= "#UTX 1.2;";
+		$UTX .= " $source_lang" if defined $source_lang;
+		(defined $target_lang) ? ($UTX .= "/$target_lang;") : ($UTX .= ";");
+		$UTX .= " $timestamp;" if defined $timestamp;
+		$UTX .= " $creator;" if defined $creator;
+		$UTX .= " $license;" if defined $license;
+		$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/ && defined $target_lang);
+		$UTX .= " $DictID;" if defined $DictID;
+		$UTX .= "\n##$description;" if (defined $description); #print middle of header if necessary
 		
-		$tgt_term = $tgt_term."\t";
-		if (defined $src_term && defined $tgt_term){
-			$UTX .= "\n$src_term$tgt_term$src_pos";
+		if(defined $directionality && $directionality =~ /bidirectional/)
+		{
+			$UTX .= "\n#term:$source_lang term:$target_lang src:pos"
+		}
+		elsif(defined$target_lang)
+		{
+			$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
+		}
+		else
+		{
+			$UTX .= "\n#term:$source_lang	src:pos";  #print necessary values of final line of Header
+		}
+		
+		$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
+		$UTX .= "\tterm status" if ($status_exists && (defined $directionality == 0 or $directionality ne 'bidirectional'));
+		$UTX .= "\tsrc:comment" if ($src_note_exists);
+		$UTX .= "\ttgt:comment" if ($tgt_note_exists);
+		$UTX .= "\tcustomer" if ($customer_exists);
+		if (@custom){
+			foreach (@custom)
+					{
+						$UTX .= "\t$_" if (($src_custom_exists && !$tgt_custom_exists) || (!$src_custom_exists && $tgt_custom_exists));
+						$UTX .= "\tsrc:$_\ttgt:$_" if ($src_custom_exists && $tgt_custom_exists);
+					}
+		}
+		$UTX .= "\tconcept ID" if ($entry_id_exists);
+		
+		$status_exists = 0 if (defined $directionality && $directionality =~ /bidirectional/);
+		
+		foreach my $output_line_ref (@output) {
+					
+			my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id, $src_term_info_hash_ref, $tgt_term_info_hash_ref) = @$output_line_ref;
 			
-			if ($tgt_pos_exists){ (defined $tgt_pos) ? ($UTX .= "$tgt_pos") : ($UTX .= "\t") }
-			if ($status_exists){ (defined $status) ? ($UTX .= "$status") : ($UTX .= "\t") }
-			if ($src_note_exists){ (defined $src_note) ? ($UTX .= "$src_note") : ($UTX .= "\t") }
-			if ($tgt_note_exists){ (defined $tgt_note) ? ($UTX .= "$tgt_note") : ($UTX .= "\t") }
-			if ($customer_exists){ (defined $customer) ? ($UTX .= "$customer") : ($UTX .= "\t") }
-			if ($entry_id_exists){ (defined $entry_id) ? ($UTX .= "$entry_id") : ($UTX .= "\t") }
+			my %src_term_info = %$src_term_info_hash_ref;
+			my %tgt_term_info = %$tgt_term_info_hash_ref;
+			
+			###This block may need to be deleted in the future
+			$src_term = "\t" if (!defined $src_term || (defined $src_term && $src_term eq "\t") || (defined $src_term eq ""));
+			
+			$tgt_term = "" if ((!defined $tgt_term || (defined $tgt_term && $tgt_term eq "\t")  || (defined $tgt_term eq "")) && defined $target_lang);
+			$tgt_term = $tgt_term."\t" if (defined $target_lang);
+			
+			
+			$src_pos = "\t" if (!defined $src_pos || (defined $src_pos && $src_pos eq "\t")  || (defined $src_pos eq ""));
+			####
+			if (defined $src_term && defined $tgt_term){
+				$UTX .= "\n$src_term$tgt_term$src_pos";
+							
+				if ($tgt_pos_exists)
+				{ 
+					if(defined $tgt_pos && $tgt_pos !~ /^\s*$/)
+						{
+						$UTX .= "$tgt_pos";
+						}else{$UTX .= "\t"}
+				}
+				if ($status_exists)
+				{ 
+					if (defined $status && $status !~ /^\s*$/)
+						{
+							$UTX .= "$status";
+						}else{$UTX .= "\t"}
+				}
+				if ($src_note_exists)
+				{ 
+					if(defined $src_note && $src_note !~ /^\s*$/)
+						{ 
+						$UTX .= "$src_note";
+						}else{$UTX .= "\t" }
+				}
+				if ($tgt_note_exists)
+				{
+					if(defined $tgt_note && $tgt_note !~ /^\s*$/){ 
+						$UTX .= "$tgt_note";
+					}else {
+						$UTX .= "\t";
+						}
+				}
+				if ($customer_exists && defined $customer && $customer !~ /^\s*$/)
+				{ 
+					if(defined $customer) { 
+						$UTX .= "$customer";
+					} else{ $UTX .= "\t" }
+				}
+				if ($entry_id_exists)
+				{ 
+					if(defined $entry_id && $entry_id !~ /^\s*$/)
+					{
+						$UTX .= "$entry_id";
+					}else{$UTX .= "\t"}
+				}
+				
+				foreach (@custom)
+				{
+					if (defined $src_term_info{$_})
+					{
+						$UTX .= "\t".$src_term_info{$_};
+					}
+				}
+			}
+			elsif(defined $src_term)
+			{
+				$UTX .= "\n$src_term$src_pos";
+							
+				if ($status_exists)
+				{ 
+					if (defined $status && $status !~ /^\s*$/)
+						{
+							$UTX .= "$status";
+						}else{$UTX .= "\t"}
+				}
+				if ($src_note_exists)
+				{ 
+					if(defined $src_note && $src_note !~ /^\s*$/)
+						{ 
+						$UTX .= "$src_note";
+						}else{$UTX .= "\t" }
+				}
+				if ($customer_exists && $customer !~ /^\s*$/)
+				{ 
+					if(defined $customer) { 
+						$UTX .= "$customer";
+					} else{ $UTX .= "\t" }
+				}
+				if ($entry_id_exists)
+				{ 
+					if(defined $entry_id && $entry_id !~ /^\s*$/)
+					{
+						$UTX .= "$entry_id";
+					}else{$UTX .= "\t"}
+				}
+				
+				foreach (@custom)
+				{
+					if (defined $src_term_info{$_})
+					{
+						$UTX .= "\t".$src_term_info{$_};
+					}
+				}
+			}
+		}
+	}else
+	{
+		#print header
+		$UTX .= "#UTX 1.11;";
+		$UTX .= " $source_lang" if defined $source_lang;
+		(defined $target_lang) ? ($UTX .= "/$target_lang;") : ($UTX .= ";");
+		$UTX .= " $timestamp;" if defined $timestamp;
+		$UTX .= " $creator;" if defined $creator;
+		$UTX .= " $license;" if defined $license;
+		$UTX .= " bidirectional;" if (defined $directionality && $directionality =~ /bidirectional/ && defined $target_lang);
+		$UTX .= " $DictID;" if defined $DictID;
+		$UTX .= "\n#$description;" if (defined $description); #print middle of header if necessary
+			
+		if(defined$target_lang)
+		{
+			$UTX .= "\n#src	tgt	src:pos";  #print necessary values of final line of Header
+		}
+		else
+		{
+			$UTX .= "\n#src	src:pos";  #print necessary values of final line of Header
+		}
+		
+		$UTX .= "\ttgt:pos" if ($tgt_pos_exists);
+		$UTX .= "\tterm status" if ($status_exists && (defined $directionality == 0 or $directionality ne 'bidirectional'));
+		$UTX .= "\tsrc:comment" if ($src_note_exists);
+		$UTX .= "\ttgt:comment" if ($tgt_note_exists);
+		$UTX .= "\tcustomer" if ($customer_exists);
+		if (@custom){
+			foreach (@custom)
+					{
+						if ($src_custom_exists && $tgt_custom_exists)
+						{
+							$UTX .= "\tsrc:$_\ttgt:$_" ;
+						}
+						else
+						{
+							$UTX .= "\t$_";
+						}
+					}
+		}
+		$UTX .= "\tconcept ID" if ($entry_id_exists);
+	
+		$status_exists = 0 if (defined $directionality && $directionality =~ /bidirectional/);
+	
+		foreach my $output_line_ref (@output) {
+				
+			my ($src_term, $tgt_term, $src_pos, $tgt_pos, $status, $customer, $src_note, $tgt_note, $entry_id, $src_term_info_hash_ref, $tgt_term_info_hash_ref) = @$output_line_ref;
+		
+			my %src_term_info = %$src_term_info_hash_ref;
+			my %tgt_term_info = %$tgt_term_info_hash_ref;
+			
+			###This block may need to be deleted in the future
+			$src_term = "\t" if (!defined $src_term || (defined $src_term && $src_term eq "\t") || (defined $src_term eq ""));
+			
+			$tgt_term = "" if ((!defined $tgt_term || (defined $tgt_term && $tgt_term eq "\t")  || (defined $tgt_term eq "")) && defined $target_lang);
+			$tgt_term = $tgt_term."\t" if (defined $target_lang);
+			
+			
+			$src_pos = "\t" if (!defined $src_pos || (defined $src_pos && $src_pos eq "\t")  || (defined $src_pos eq ""));
+			####
+			if (defined $src_term && defined $tgt_term){
+				$UTX .= "\n$src_term$tgt_term$src_pos";
+			
+				if ($tgt_pos_exists)
+				{ 
+					if(defined $tgt_pos && $tgt_pos !~ /^\s*$/)
+						{
+						$UTX .= "$tgt_pos";
+						}else{$UTX .= "\t"}
+				}
+				if ($status_exists)
+				{ 
+					if (defined $status && $status !~ /^\s*$/)
+						{
+							$UTX .= "$status";
+						}else{$UTX .= "\t"}
+				}
+				if ($src_note_exists)
+				{ 
+					if(defined $src_note && $src_note !~ /^\s*$/)
+						{ 
+						$UTX .= "$src_note";
+						}else{$UTX .= "\t" }
+				}
+				if ($tgt_note_exists)
+				{
+					if(defined $tgt_note && $tgt_note !~ /^\s*$/){ 
+						$UTX .= "$tgt_note";
+					}else {
+						$UTX .= "\t";
+						}
+				}
+				if ($customer_exists && defined $customer && $customer !~ /^\s*$/)
+				{ 
+					if(defined $customer) { 
+						$UTX .= "$customer";
+					} else{ $UTX .= "\t" }
+				}
+				if ($src_custom_exists)
+				{
+					foreach (@custom)
+					{
+						if (defined $src_term_info{$_})
+						{
+							$UTX .= $src_term_info{$_};
+						}
+						else
+						{
+							$UTX .= "\t";
+						}
+					}
+				}
+				if ($tgt_custom_exists)
+				{
+					foreach (@custom)
+					{
+						if (defined $tgt_term_info{$_})
+						{
+							$UTX .= $tgt_term_info{$_};
+						}
+						else
+						{
+							$UTX .= "\t";
+						}
+					}
+				}
+				if ($entry_id_exists)
+				{ 
+					if(defined $entry_id && $entry_id !~ /^\s*$/)
+					{
+						$UTX .= "$entry_id";
+					}else{$UTX .= "\t"}
+				}
+				
+				
+			}
+			elsif(defined $src_term)
+			{
+				$UTX .= "\n$src_term$src_pos";
+							
+				if ($status_exists)
+				{ 
+					if (defined $status && $status !~ /^\s*$/)
+						{
+							$UTX .= "$status";
+						}else{$UTX .= "\t"}
+				}
+				if ($src_note_exists)
+				{ 
+					if(defined $src_note && $src_note !~ /^\s*$/)
+						{ 
+						$UTX .= "$src_note";
+						}else{$UTX .= "\t" }
+				}
+				if ($customer_exists && $customer !~ /^\s*$/)
+				{ 
+					if(defined $customer) { 
+						$UTX .= "$customer";
+					} else{ $UTX .= "\t" }
+				}
+				if ($src_custom_exists)
+				{
+					foreach (@custom)
+					{
+						if (defined $src_term_info{$_} )
+						{
+							$UTX .= "\t".$src_term_info{$_};
+						}
+						else
+						{
+							$UTX .= "\t";
+						}
+					}
+				}
+				if ($entry_id_exists)
+				{ 
+					if(defined $entry_id && $entry_id !~ /^\s*$/)
+					{
+						$UTX .= "$entry_id";
+					}else{$UTX .= "\t"}
+				}
+			}
+		
+		
+		
 		}
 	}
-	
+	$UTX =~ s/\n/\r\n/g;
 	return $UTX;
 } #end _print_utx
 
