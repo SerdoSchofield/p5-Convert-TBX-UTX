@@ -30,7 +30,11 @@
                     <termStatus>notRecommended</termStatus>
                     <partOfSpeech>noun</partOfSpeech>
                     <customer>SAP</customer>
-                    <note>however bloodhound is used rather than blooddog</note>
+                    <noteGrp>
+						<note>
+							<noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note>
+					</noteGrp>
                 </tig>
             </langSet>
         </termEntry>

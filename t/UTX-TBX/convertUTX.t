@@ -104,14 +104,15 @@ Katze	cat	noun	noun			SAP	c008
 	<body>
 		<termEntry id="C002"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
@@ -119,31 +120,37 @@ Katze	cat	noun	noun			SAP	c008
 				</tig>
 			</langSet>
 		</termEntry>
-			<termEntry id="C001">
+		<termEntry id="C001"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
-					<term>Hund</term>
-					<partOfSpeech>noun</partOfSpeech>
-				</tig>
+			 <tig><!--terminological information group-->
+			   <term>Hund</term>
+			   <customer>SAP</customer>
+			   <partOfSpeech>noun</partOfSpeech>
+			 </tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<customer>SAP</customer>
-					<note>however bloodhound is used rather than blooddog</note>
+					<noteGrp>
+						<note>
+						  <noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note>
+					</noteGrp>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 		</termEntry>
 		<termEntry id="c008"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
+					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
@@ -179,14 +186,15 @@ Katze	cat	noun	noun			SAP
 	<body>
 		<termEntry id="C001"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
@@ -196,29 +204,34 @@ Katze	cat	noun	noun			SAP
 		</termEntry>
 			<termEntry id="C002"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<customer>SAP</customer>
-					<note>however bloodhound is used rather than blooddog</note>
+					<noteGrp>
+						<note>
+							<noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note>
+					</noteGrp>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 		</termEntry>
 		<termEntry id="C003"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
@@ -256,14 +269,15 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 	<body>
 		<termEntry id="C002"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
@@ -273,29 +287,34 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C003"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<customer>SAP</customer>
-					<note>however bloodhound is used rather than blooddog</note>
+					<noteGrp>
+						<note>
+							<noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note>
+					</noteGrp>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 		</termEntry>
 		<termEntry id="C008"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
@@ -304,13 +323,13 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C004"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Foo</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>bar</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
@@ -318,17 +337,21 @@ Bar	Foo	noun	noun	approved	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C001"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Bar</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Foo</term>
 					<customer>Walmart</customer>
-					<note>Foobar</note>
+					<noteGrp>
+						<note>
+							<noteValue>Foobar</noteValue>
+						</note>
+					</noteGrp>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
@@ -364,14 +387,15 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 	<body>
 		<termEntry id="C002"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
@@ -381,17 +405,22 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C003"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<customer>SAP</customer>
-					<note>however bloodhound is used rather than blooddog</note>
+					<noteGrp>
+						<note>
+							<noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note>
+					</noteGrp>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
@@ -399,14 +428,14 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C008"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
@@ -416,14 +445,14 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C004"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Foo</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>bar</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
@@ -432,17 +461,21 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C001"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Bar</term>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Foo</term>
 					<customer>Walmart</customer>
-					<note>Foobar</note>
+					<noteGrp>
+						<note>
+							<noteValue>Foobar</noteValue>
+						</note>
+					</noteGrp>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
@@ -480,13 +513,14 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 	<body>
 		<termEntry id="C002"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
@@ -495,29 +529,35 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C003"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<customer>SAP</customer>
-					<note>however bloodhound is used rather than blooddog</note>
+					<noteGrp>
+						<note>
+							<noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note>
+					</noteGrp>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 		</termEntry>
 		<termEntry id="C008"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
+					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
@@ -526,13 +566,13 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C004"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Foo</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>bar</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
@@ -540,16 +580,21 @@ Bar	Foo	noun	noun	Foobar	Walmart	C001
 		</termEntry>
 		<termEntry id="C001"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Bar</term>
+					<customer>Walmart</customer>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Foo</term>
 					<customer>Walmart</customer>
-					<note>Foobar</note>
+					<noteGrp>
+						<note>
+							<noteValue>Foobar</noteValue>
+						</note>
+					</noteGrp>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
@@ -582,14 +627,15 @@ Katze	cat	noun	noun		CUSTOM NOTE	SAP	c008
 	<body>
 		<termEntry id="C002"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<customer>SAP</customer>
 					<termStatus>preferred</termStatus>
@@ -599,13 +645,14 @@ Katze	cat	noun	noun		CUSTOM NOTE	SAP	c008
 		</termEntry>
 			<termEntry id="C001"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
+					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
@@ -614,13 +661,14 @@ Katze	cat	noun	noun		CUSTOM NOTE	SAP	c008
 		</termEntry>
 		<termEntry id="c008"><!--terminological entry-->
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
+					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<customer>SAP</customer>
 					<partOfSpeech>noun</partOfSpeech>

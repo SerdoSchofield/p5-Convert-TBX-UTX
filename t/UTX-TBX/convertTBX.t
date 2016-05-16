@@ -57,37 +57,41 @@ __DATA__
 		<termEntry id="C002"><!--terminological entry-->
 		<subjectField>biology</subjectField>
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<termStatus>preferred</termStatus>
 					<customer>SAP</customer>
 				</tig>
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<termStatus>notRecommended</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 					<customer>SAP</customer>
-					<note>however bloodhound is used rather than blooddog</note>
+					<noteGrp>
+						<note>
+							<noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note>
+					</noteGrp>
 				</tig>
 			</langSet>
 		</termEntry>
 		<termEntry id="c008"><!--terminological entry-->
 		<subjectField>biology</subjectField>
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<customer>SAP</customer>
@@ -122,37 +126,41 @@ Katze	cat	noun	noun			SAP	c008
 		<termEntry id="C002"><!--terminological entry-->
 		<subjectField>biology</subjectField>
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<termStatus>preferred</termStatus>
 					<customer>SAP</customer>
 				</tig>
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<termStatus>notRecommended</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 					<customer>SAP</customer>
-					<note>however bloodhound is used rather than blooddog</note>
+					<noteGrp>
+						<note>
+							<noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note>
+					</noteGrp>
 				</tig>
 			</langSet>
 		</termEntry>
 		<termEntry id="c008"><!--terminological entry-->
 		<subjectField>biology</subjectField>
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<partOfSpeech>properNoun</partOfSpeech>
 					<customer>SAP</customer>
@@ -188,37 +196,39 @@ Katze	cat	noun	noun			SAP	c008
 		<termEntry id="C002"><!--terminological entry-->
 		<subjectField>biology</subjectField>
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<termStatus>preferred</termStatus>
 					<customer>SAP</customer>
 				</tig>
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<termStatus>admitted</termStatus>
 					<partOfSpeech>noun</partOfSpeech>
 					<customer>SAP</customer>
-					<note>however bloodhound is used rather than blooddog</note>
+					<noteGrp> 						<note>
+							<noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note> 					</noteGrp>
 				</tig>
 			</langSet>
 		</termEntry>
 		<termEntry id="c008"><!--terminological entry-->
 		<subjectField>biology</subjectField>
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<customer>SAP</customer>
@@ -256,39 +266,43 @@ Katze	cat	noun	noun			SAP	c008
 		<termEntry id="C002"><!--terminological entry-->
 		<subjectField>biology</subjectField>
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Hund</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<termStatus>preferred</termStatus>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>dog</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<termStatus>preferred</termStatus>
 					<customer>SAP</customer>
 				</tig>
-				<tig>
+				<tig><!--terminological information group-->
 					<term>hound</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<termStatus>preferred</termStatus>
 					<customer>SAP</customer>
-					<note>however bloodhound is used rather than blooddog</note>
+					<noteGrp>
+						<note>
+							<noteValue>however bloodhound is used rather than blooddog</noteValue>
+						</note>
+					</noteGrp>
 				</tig>
 			</langSet>
 		</termEntry>
 		<termEntry id="c008"><!--terminological entry-->
 		<subjectField>biology</subjectField>
 			<langSet xml:lang="de">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>Katze</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<termStatus>preferred</termStatus>
 				</tig>
 			</langSet>
 			<langSet xml:lang="en">
-				<tig>
+				<tig><!--terminological information group-->
 					<term>cat</term>
 					<partOfSpeech>noun</partOfSpeech>
 					<termStatus>preferred</termStatus>

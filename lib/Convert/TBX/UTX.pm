@@ -13,7 +13,7 @@ use warnings;
 use feature 'state';
 use feature 'say';
 use DateTime;
-use TBX::Min 0.06;
+use TBX::Min 0.07;
 use Path::Tiny;
 use Exporter::Easy (
 	OK => [ 'utx2min', 'min2utx' ]
@@ -37,8 +37,12 @@ sub utx2min {
 # ABSTRACT:  Convert TBX-Min to UTX
 sub min2utx {
 	my ($fh, $data, $UTX);
-	my ($input, $output) = @_;
-	$UTX = _export_utx($input);
+	my ($input, $output, $option) = @_;
+	if (!defined $option) {
+        $option = "--1.11";
+    }
+
+	$UTX = _export_utx($input, $option);
 	if (defined $output) { _print_converted($UTX, $output) };
 	
 	return \$UTX;
@@ -68,7 +72,7 @@ sub _run {
 	$die_message = "\nExample (TBX-Min to UTX): UTX.pm --tbx2utx Input.tbx Output.utx\n"
 		."Example (UTX to TBX-Min): UTX.pm --utx2tbx Input.utx Output.tbx\n\n";
 
-	@ARGV == 3 or die "usage: UTX.pm <--utx2tbx or --tbx2utx (conversion direction)> <input_path> <output_path>\n".$die_message;
+	(@ARGV == 3 || @ARGV == 4) or die "usage: UTX.pm <--utx2tbx or --tbx2utx (conversion direction)> <input_path> <output_path>\n".$die_message;
 	
 	if ($ARGV[0] =~ /--(tbx2utx|utx2tbx)/i){
 		$in = lc $1 ;
@@ -280,6 +284,15 @@ sub _export_tbx {
 
 sub _export_utx {
 	my $fh = shift;
+	my $option = shift;
+	my $printUTX1_2 = -1;
+	if ($option eq "--1.2") {
+        $printUTX1_2 = 1;
+    }
+    
+	
+    
+	
 	my $TBX = TBX::Min->new_from_xml($fh);
 	my ($source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, 
 		$description, $entries, @custom); #because TBX-Min supports multiple subject fields and UTX does not, subject_field cannot be included here
@@ -503,7 +516,7 @@ sub _export_utx {
 	}
 	
 	my $UTX = _format_utx([$tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $src_custom_exists, $tgt_custom_exists,
-					$entry_id_exists, $source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, \@custom, @output]);
+					$entry_id_exists, $source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, $printUTX1_2, \@custom, @output]);
 	return $UTX;
 } # end _export_utx
 
@@ -557,12 +570,12 @@ sub _set_terms {  #used when exporting to TBX
 sub _format_utx { #accepts $exists, and @output
 	my $args = shift;
 	my ($tgt_pos_exists, $status_exists, $customer_exists, $src_note_exists, $tgt_note_exists, $src_custom_exists, $tgt_custom_exists, $entry_id_exists,
-		$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, $customRef, @output) = @$args;
+		$source_lang, $target_lang, $timestamp, $creator, $license, $directionality, $DictID, $description, $printUTX1_2, $customRef, @output) = @$args;
 	my $UTX;
 	
 	my @custom = @$customRef;
 	
-	if(my $printUTX1_2){
+	if($printUTX1_2){
 		#print header
 		$UTX .= "#UTX 1.2;";
 		$UTX .= " $source_lang" if defined $source_lang;
